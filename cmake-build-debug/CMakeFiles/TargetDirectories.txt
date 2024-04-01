@@ -1,0 +1,3 @@
+/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/cmake-build-debug/CMakeFiles/nf_automata.dir
+/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/cmake-build-debug/CMakeFiles/rebuild_cache.dir

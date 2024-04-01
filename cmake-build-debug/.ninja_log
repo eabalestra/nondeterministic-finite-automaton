@@ -1,0 +1,7 @@
+# ninja log v5
+2	68	1711934035119427428	CMakeFiles/nf_automata.dir/nf-automata.c.o	b635fb5f114d422d
+68	112	1711934035159428564	nf_automata	70f13e4bb9335b40
+1	26	1711934035075426179	CMakeFiles/nf_automata.dir/main.c.o	c75bc3c2be2b1bac
+1	25	1711939108846766991	CMakeFiles/nf_automata.dir/main.c.o	7e5f9c014012b3f6
+2	65	1711939108882768229	CMakeFiles/nf_automata.dir/nf-automata.c.o	f0cbdb44e19ccd7c
+65	85	1711939108902768917	nf_automata	70f13e4bb9335b40
