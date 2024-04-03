@@ -1,31 +1,35 @@
 #include <stdio.h>
 #include "nf-automata.h"
 
-int main() {
-    NFA* nfa = create_nfa();
-    add_transition(nfa, 0, 1, 'a');
-    add_transition(nfa, 1, 2, 'b');
-    add_transition(nfa, 1, 1, 'b');
-    add_transition(nfa, 1, 3, 'a');
-    add_transition(nfa, 3, 3, 'a');
-    add_transition(nfa, 3, 3, 'b');
+int main()
+{
+  NFA *nfa = create_nfa();
+  add_transition(nfa, 0, 1, 'a');
+  add_transition(nfa, 0, 2, 'a');
+  add_transition(nfa, 0, 0, 'b');
+  add_transition(nfa, 1, 2, 'b');
+  add_transition(nfa, 2, 2, 'b');
+  add_transition(nfa, 1, 3, 'a');
+  add_transition(nfa, 3, 3, 'a');
+  add_transition(nfa, 3, 3, 'b');
 
-    set_accepting(nfa, 2, 1);
+  set_accepting(nfa, 3, 1);
+  // AUTOMATON EVEN 0's AND MULTIPLE 3 1's
 
-    //read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nf-automata/automatas/automata.dot");
+  // read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nf-automata/automatas/automata.dot");
+  // read_from_file(nfa, "/home/matybq/UNRC/automatas/practica3/automata_ej4.dot");
 
-    int current_state = nfa->initial_state;
-    char input[] = "abb";
+  char input[] = "bbabbbbbb";
+  int accepted = belongs_nondet(nfa, input);
 
-    for (int i = 0; i < sizeof(input) - 1; i++) {
-        current_state = transition(nfa, current_state, input[i]);
-    }
+  if (accepted)
+  {
+    printf("The input string is accepted by the NFA\n");
+  }
+  else
+  {
+    printf("The input string is not accepted by the NFA\n");
+  }
 
-    if (nfa->is_accepting[current_state]) {
-        printf("The input string is accepted by the NFA\n");
-    } else {
-        printf("The input string is not accepted by the NFA\n");
-    }
-
-    return 0;
+  return 0;
 }
