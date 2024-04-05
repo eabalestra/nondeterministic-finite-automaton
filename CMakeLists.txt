@@ -5,4 +5,5 @@ set(CMAKE_C_STANDARD 17)
 
 add_executable(nf_automata main.c
         nf-automata.c
-        nf-automata.h)
+        nf-automata.h
+        linked_list.c)

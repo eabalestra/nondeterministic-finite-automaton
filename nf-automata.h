@@ -5,10 +5,11 @@
 #ifndef NF_AUTOMATA_NF_AUTOMATA_H
 #define NF_AUTOMATA_NF_AUTOMATA_H
 
+#include "linked_list.h"
+
 #define MAX_STATES 100
 #define MAX_SYMBOLS 27
-#define ERROR_STATE -1
-#include "linked_list.c"
+#define ERROR_STATE (-1)
 
 typedef struct
 {
@@ -25,5 +26,6 @@ void print();
 void read_from_file(NFA *nfa, const char *filename);
 int belongs_nondet(NFA *nfa, char input[]);
 int belongs(NFA *nfa, Node *current, char input[]);
+void print_nfa(NFA *nfa);
 
 #endif // NF_AUTOMATA_NF_AUTOMATA_H
