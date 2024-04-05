@@ -7,3 +7,5 @@
 /dataSources/
 /dataSources.local.xml
 .vscode
+/cmake-build-debug/
+.idea/
