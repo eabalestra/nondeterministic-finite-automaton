@@ -1,5 +1,5 @@
 //
-// Created by agustin on 30/03/24.
+// Created by agustin and matias on 30/03/24.
 //
 
 #include "nf-automata.h"
@@ -26,7 +26,16 @@ NFA *create_nfa()
 
 void add_transition(NFA *nfa, int from, int to, char symbol)
 {
-  Node *node = nfa->transitions[from][symbol - 'a'];
+  Node *node;
+  if (symbol == LAMBDA_SYMBOL)
+  {
+      node = nfa->transitions[from][MAX_SYMBOLS - 1]; // the last index for lambda transition
+  }
+  else
+  {
+      node = nfa->transitions[from][symbol - 'a'];
+  }
+
   if (node->data == -1)
   {
     node->data = to;
@@ -48,98 +57,17 @@ void set_accepting(NFA *nfa, int state, int is_accepting)
 
 Node *transition(NFA *nfa, int current_state, char symbol)
 {
-  int symbol_index = symbol - 'a'; // Convert the symbol to an index
-  Node *next_state = nfa->transitions[current_state][symbol_index];
-  return next_state;
-}
-
-int belongs_nondet(NFA *nfa, char input[])
-{
-  Node *initial = nfa->transitions[nfa->initial_state][input[0] - 'a'];
-  input = input + 1;
-  return belongs(nfa, initial, input);
-}
-
-int belongs(NFA *nfa, Node *current, char *input)
-{
-
-  if (current == NULL || current->data == ERROR_STATE)
-  {
-    printf("nopath !\n");
-    return 0;
-  }
-  if (*input == '\0' && !nfa->is_accepting[current->data])
-  {
-    printf("string consumed totally and finished on an NON accepting state !\n");
-    return 0;
-  }
-  if (*input == '\0' && nfa->is_accepting[current->data])
-  {
-    printf("string consumed totally and finished on an ACCEPTING state !\n");
-    return 1;
-  }
-
-  while (current != NULL && current->data != ERROR_STATE)
-  {
-    printf("Next trans: from state: %d and string: %s\n", current->data, input);
-    Node *node = transition(nfa, current->data, *input);
-    if (belongs(nfa, node, input + 1))
+    Node *next_state;
+    if (nfa->transitions[current_state][MAX_SYMBOLS - 1]->data != -1)
     {
-      return 1;
+        next_state = nfa->transitions[current_state][MAX_SYMBOLS - 1];
     }
-    current = current->next;
-  }
-
-  return 0;
-}
-
-int belongs2(NFA *nfa, Node *current, char input[])
-{
-  if (current == NULL)
-  {
-    return 0;
-  }
-  int accepted;
-  int current_state_in_int;
-
-  for (int i = 0; i < strlen(input); i++)
-  {
-    current_state_in_int = current->data;
-    current = transition(nfa, current_state_in_int, input[i]);
-    input = input + 1;
-
-    if (current == NULL || current->data == ERROR_STATE)
+    else
     {
-      return 0;
+        int symbol_index = symbol - 'a'; // Convert the symbol to an index
+        next_state = nfa->transitions[current_state][symbol_index];
     }
-
-    if (current->next != NULL)
-    {
-
-      while (current->next != NULL)
-      {
-        accepted = belongs(nfa, current, input + 1);
-        if (accepted)
-        {
-          return 1;
-        }
-        current = current->next;
-      }
-
-      return accepted;
-    }
-    if (current->next != NULL)
-    {
-      current = current->next;
-    }
-  }
-
-  current_state_in_int = current->data;
-  if (nfa->is_accepting[current_state_in_int])
-  {
-    return 1;
-  }
-  return 0;
+    return next_state;
 }
 
 void read_from_file(NFA *nfa, const char *filename)
@@ -187,10 +115,58 @@ void read_from_file(NFA *nfa, const char *filename)
   fclose(file);
 }
 
-char *substring(char *destination, const char *source, int beg, int n)
+DFA nfa_to_dfa(NFA *nfa)
 {
-  strncpy(destination, (source + beg), n);
-  return destination;
+  DFA result;
+  return result;
+}
+
+int belongs_non_det(NFA *nfa, char input[])
+{
+    Node *initial = transition(nfa, nfa->initial_state, *input);
+    input = get_consumed_chain(nfa, nfa->initial_state, input);
+    return belongs(nfa, initial, input);
+}
+
+int belongs(NFA *nfa, Node *current, char *input)
+{
+  if (current == NULL || current->data == ERROR_STATE)
+  {
+    printf("nopath !\n");
+    return 0;
+  }
+  if (*input == '\0' && !nfa->is_accepting[current->data])
+  {
+    printf("string consumed totally and finished on an NON accepting state !\n");
+    return 0;
+  }
+  if (*input == '\0' && nfa->is_accepting[current->data])
+  {
+    printf("string consumed totally and finished on an ACCEPTING state !\n");
+    return 1;
+  }
+
+  while (current != NULL && current->data != ERROR_STATE)
+  {
+    printf("Next trans: from state: %d and string: %s\n", current->data, input);
+    Node *node = transition(nfa, current->data, *input);
+    input = get_consumed_chain(nfa, current->data, input);
+    if (belongs(nfa, node, input))
+    {
+      return 1;
+    }
+    current = current->next;
+  }
+
+  return 0;
+}
+
+char *get_consumed_chain(NFA *nfa, int current_node_data, char *input) {
+    if (nfa->transitions[current_node_data][MAX_SYMBOLS - 1]->data != -1)
+    {
+        return input;
+    }
+    return input + 1;
 }
 
 void print_nfa(NFA *nfa)
