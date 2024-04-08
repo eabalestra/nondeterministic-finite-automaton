@@ -39,8 +39,8 @@ DFA nfa_to_dfa(NFA *nfa);
 
 // Exercise 4
 int belongs_non_det(NFA *nfa, char input[]);
-int belongs(NFA *nfa, Node *current, char input[]);
-char *get_consumed_chain(NFA *nfa, int current_node_data, char *input);
+int belongs(NFA *nfa, int current_node, char input[]);
+char *get_consumed_chain(NFA *nfa, int current_node_data, char *input, Node *node);
 
 void print_nfa(NFA *nfa);
 

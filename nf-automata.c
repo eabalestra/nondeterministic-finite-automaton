@@ -29,11 +29,11 @@ void add_transition(NFA *nfa, int from, int to, char symbol)
   Node *node;
   if (symbol == LAMBDA_SYMBOL)
   {
-      node = nfa->transitions[from][MAX_SYMBOLS - 1]; // the last index for lambda transition
+    node = nfa->transitions[from][MAX_SYMBOLS - 1]; // the last index for lambda transition
   }
   else
   {
-      node = nfa->transitions[from][symbol - 'a'];
+    node = nfa->transitions[from][symbol - 'a'];
   }
 
   if (node->data == -1)
@@ -57,17 +57,15 @@ void set_accepting(NFA *nfa, int state, int is_accepting)
 
 Node *transition(NFA *nfa, int current_state, char symbol)
 {
-    Node *next_state;
-    if (nfa->transitions[current_state][MAX_SYMBOLS - 1]->data != -1)
-    {
-        next_state = nfa->transitions[current_state][MAX_SYMBOLS - 1];
-    }
-    else
-    {
-        int symbol_index = symbol - 'a'; // Convert the symbol to an index
-        next_state = nfa->transitions[current_state][symbol_index];
-    }
-    return next_state;
+
+  int symbol_index = symbol - 'a'; // Convert the symbol to an index
+  Node *next_state = nfa->transitions[current_state][symbol_index];
+
+  if (nfa->transitions[current_state][MAX_SYMBOLS - 1]->data != -1)
+  {
+    insertAtEnd(&next_state, nfa->transitions[current_state][MAX_SYMBOLS - 1]->data);
+  }
+  return next_state;
 }
 
 void read_from_file(NFA *nfa, const char *filename)
@@ -123,50 +121,60 @@ DFA nfa_to_dfa(NFA *nfa)
 
 int belongs_non_det(NFA *nfa, char input[])
 {
-    Node *initial = transition(nfa, nfa->initial_state, *input);
-    input = get_consumed_chain(nfa, nfa->initial_state, input);
-    return belongs(nfa, initial, input);
+  return belongs(nfa, nfa->initial_state, input);
 }
 
-int belongs(NFA *nfa, Node *current, char *input)
+int belongs(NFA *nfa, int current_node, char *input)
 {
-  if (current == NULL || current->data == ERROR_STATE)
-  {
-    printf("nopath !\n");
-    return 0;
-  }
-  if (*input == '\0' && !nfa->is_accepting[current->data])
-  {
-    printf("string consumed totally and finished on an NON accepting state !\n");
-    return 0;
-  }
-  if (*input == '\0' && nfa->is_accepting[current->data])
+  printf("current %d\n", current_node);
+  if (*input == '\0' && nfa->is_accepting[current_node])
   {
     printf("string consumed totally and finished on an ACCEPTING state !\n");
     return 1;
   }
-
-  while (current != NULL && current->data != ERROR_STATE)
+  if (*input == '\0' && !nfa->is_accepting[current_node])
   {
-    printf("Next trans: from state: %d and string: %s\n", current->data, input);
-    Node *node = transition(nfa, current->data, *input);
-    input = get_consumed_chain(nfa, current->data, input);
-    if (belongs(nfa, node, input))
+    printf("string consumed totally and finished on an NON accepting state !\n");
+    return 0;
+  }
+  if (current_node == ERROR_STATE)
+  {
+    printf("nopath !\n");
+    return 0;
+  }
+
+  Node *next_node = transition(nfa, current_node, *input);
+  printList(next_node);
+  while (next_node != NULL && next_node->data != ERROR_STATE)
+  {
+    char *input_copy = get_consumed_chain(nfa, current_node, input, next_node);
+    printf("Next trans: from state: %d and string: %s\n", next_node->data, input_copy);
+    if (belongs(nfa, next_node->data, input_copy))
     {
       return 1;
     }
-    current = current->next;
+    next_node = next_node->next;
   }
 
   return 0;
 }
 
-char *get_consumed_chain(NFA *nfa, int current_node_data, char *input) {
-    if (nfa->transitions[current_node_data][MAX_SYMBOLS - 1]->data != -1)
-    {
-        return input;
-    }
+char *get_consumed_chain(NFA *nfa, int current_node_data, char *input, Node *node)
+
+{
+
+  if (nfa->transitions[current_node_data][MAX_SYMBOLS - 1]->data == node->data)
+  {
+    printf("Lambda from %d to %d\n", current_node_data, node->data);
+
+    return input;
+  }
+  int symbol_index = *input - 'a'; // Convert the symbol to an index
+  if (nfa->transitions[current_node_data][symbol_index]->data != -1)
+  {
+    printf("must consume from %d \n", current_node_data);
     return input + 1;
+  }
 }
 
 void print_nfa(NFA *nfa)

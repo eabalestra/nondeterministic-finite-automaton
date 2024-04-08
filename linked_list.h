@@ -8,7 +8,7 @@ typedef struct Node
 } Node;
 
 Node *createNode(int data);
-void insertAtBeginning(Node **head, int data);
+void insertAtEnd(Node **head, int data);
 int length(Node *head);
 void printList(Node *head);
 

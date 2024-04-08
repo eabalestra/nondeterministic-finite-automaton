@@ -9,7 +9,7 @@ typedef struct Node
 } Node;
 
 Node *createNode(int data);
-void insertAtBeginning(Node **head, int data);
+void insertAtEnd(Node **head, int data);
 int length(Node *head);
 void printList(Node *head);
 
@@ -21,11 +21,22 @@ Node *createNode(int data)
   return newNode;
 }
 
-void insertAtBeginning(Node **head, int data)
+void insertAtEnd(Node **head, int data)
 {
-  Node *newNode = createNode(data);
-  newNode->next = *head;
-  *head = newNode;
+    Node *newNode = createNode(data);
+    if (*head == NULL)
+    {
+        *head = newNode;
+    }
+    else
+    {
+        Node *current = *head;
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
 }
 
 void printList(Node *head)
