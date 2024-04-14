@@ -1,7 +1,3 @@
-//
-// Created by agustin and matias on 30/03/24.
-//
-
 #ifndef NF_AUTOMATA_NF_AUTOMATA_H
 #define NF_AUTOMATA_NF_AUTOMATA_H
 
@@ -19,9 +15,10 @@ typedef struct
   Node *transitions[NON_DET_MAX_STATES][NON_DET_MAX_SYMBOLS];
   int is_accepting[NON_DET_MAX_STATES];
   int initial_state;
+  char alphabet[NON_DET_MAX_SYMBOLS];
 } NFA;
 
-NFA *create_nfa();
+NFA *create_nfa(char alphabet[]);
 void non_det_add_transition(NFA *nfa, int from, int to, char symbol);
 void non_det_set_accepting(NFA *nfa, int state, int is_accepting);
 Node *non_det_transition(NFA *nfa, int current_state, char symbol);
@@ -31,8 +28,8 @@ void read_from_file(NFA *nfa, const char *filename);
 
 // Exercise 3
 DFA *nfa_to_dfa(NFA *nfa);
-Set *lambda_closure(NFA *nfa, Set *states);
-Set *move(NFA *nfa, Set *states, char symbol);
+State *lambda_closure(NFA *nfa, State *state);
+State *move(NFA *nfa, State *state, char symbol);
 
 // Exercise 4
 

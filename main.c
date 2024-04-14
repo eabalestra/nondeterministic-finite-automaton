@@ -1,24 +1,21 @@
 #include <stdio.h>
 #include "nf-automata/nf-automata.h"
+#include "sets/state.h"
 
 int main()
 {
   // create
-  NFA *nfa = create_nfa();
+  char alphabet[3] = {'a', 'b', '_'};
 
-  read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/example-automatons/automata_5.dot");
+  NFA *nfa = create_nfa(alphabet);
+  /*
+    read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/example-automatons/automata_5.dot");
+     */
 
-  // print automata
+  read_from_file(nfa, "/home/matybq/UNRC/automatas/nondeterministic-finite-automaton/example-automatons/automata_5.dot");
   printf("\n");
-  print_nfa(nfa);
-
-  Set *initial_set = create_set();
-  insert_set(initial_set, 0);
-  initial_set = lambda_closure(nfa, initial_set);
-  initial_set = lambda_closure(nfa, move(nfa, initial_set, 'a'));
-
-  print_set(initial_set);
-
+  //print_nfa(nfa);
+  DFA *dfa = nfa_to_dfa(nfa);
   // check if a string is accepted
   /*char input[] = "ba";
   printf("\nInput string: %s\n", input);

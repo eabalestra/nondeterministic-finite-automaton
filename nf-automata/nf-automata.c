@@ -1,6 +1,3 @@
-//
-// Created by agustin and matias on 30/03/24.
-//
 #include "nf-automata.h"
 #include "../sets/set.h"
 #include "../df-automata/df-automata.h"
@@ -10,7 +7,7 @@
 #include <regex.h>
 #include <string.h>
 
-NFA *create_nfa()
+NFA *create_nfa(char alphabet[])
 {
   NFA *nfa = malloc(sizeof(NFA));
   for (int from = 0; from < NON_DET_MAX_STATES; from++)
@@ -22,6 +19,13 @@ NFA *create_nfa()
     nfa->is_accepting[from] = 0;
   }
   nfa->initial_state = 0;
+
+  for (int i = 0; i < strlen(alphabet); i++)
+  {
+    nfa->alphabet[i] = alphabet[i];
+    printf("SYMBOL: %c\n", alphabet[i]);
+  }
+
   return nfa;
 }
 
@@ -72,49 +76,78 @@ Node *non_det_transition(NFA *nfa, int current_state, char symbol)
 DFA *nfa_to_dfa(NFA *nfa)
 {
   DFA *dfa = create_dfa();
-  Set *T = create_set();
+  State *q0 = create_state();
+  add_to_state(q0, nfa->initial_state);
+  det_add_state(dfa, lambda_closure(nfa, q0));
+  // print_dfa(dfa);
+  for (int i = 0; i < dfa->states_cant; i++)
+  {
+    printf("statescant: %d\n", dfa->states_cant);
+    State *current_state = dfa->states[i];
+    printf("current  ");
+    print_state(current_state);
+
+    for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
+    {
+      State *new_state = lambda_closure(nfa, move(nfa, current_state, nfa->alphabet[symbol]));
+      int last_index = det_add_state(dfa, new_state);
+      printf("\nlast index %d", last_index);
+
+      if (last_index != -1)
+      {
+        printf("\n\ntransition from ");
+        print_state(current_state);
+
+        printf("to ");
+        print_state(new_state);
+        printf("by symbol: %c\n", 'a'+symbol);
+
+        det_add_transition(dfa, i, last_index, symbol);
+      }
+    }
+  }
 
   return dfa;
 }
 
-Set *lambda_closure(NFA *nfa, Set *states)
+State *lambda_closure(NFA *nfa, State *state)
 {
-    Node *node;
+  Node *node;
 
-    for (int i = 0; i < states->size; ++i)
+  for (int i = 0; i < (state->enteros->size); ++i)
+  {
+    int int_state = state->enteros->elements[i];
+    node = nfa->transitions[int_state][NON_DET_MAX_SYMBOLS - 1];
+
+    while (node != NULL && node->data != -1)
     {
-        int state = states->elements[i];
-        node = nfa->transitions[state][NON_DET_MAX_SYMBOLS - 1];
-
-        while (node != NULL && node->data != -1)
-        {
-            insert_set(states, node->data);
-            node = node->next;
-        }
+      add_to_state(state, node->data);
+      node = node->next;
     }
+  }
 
-    return states;
+  return state;
 }
 
-Set *move(NFA *nfa, Set *states, char symbol)
+State *move(NFA *nfa, State *state, char symbol)
 {
-    Set* result = create_set();
-    Node *node;
+  int empty_array[DET_MAX_STATES];
+  State *result = create_state(empty_array);
+  Node *node;
 
-    for (int i = 0; i < states->size; ++i)
+  for (int i = 0; i < state->enteros->size; ++i)
+  {
+    int int_state = state->enteros->elements[i];
+    node = nfa->transitions[int_state][symbol - 'a'];
+
+    while (node != NULL && node->data != -1)
     {
-        int state = states->elements[i];
-        node = nfa->transitions[state][symbol - 'a'];
-
-        while (node != NULL && node->data != -1)
-        {
-            insert_set(states, node->data);
-            insert_set(result, node->data);
-            node = node->next;
-        }
+      add_to_state(result, node->data);
+      node = node->next;
     }
+  }
 
-    return result;
+  return result;
 }
 
 int belongs_non_det(NFA *nfa, char input[])
@@ -219,7 +252,7 @@ void read_from_file(NFA *nfa, const char *filename)
     {
       int state = atoi(line + groups[1].rm_so);
       printf("Setting state %d as accepting\n", state);
-        non_det_set_accepting(nfa, state, 1);
+      non_det_set_accepting(nfa, state, 1);
     }
     else if (!regexec(&regex_transition, line, 4, groups, 0))
     {
@@ -230,7 +263,7 @@ void read_from_file(NFA *nfa, const char *filename)
       while (symbol != NULL)
       {
         printf("Adding non_det_transition from %d to %d with symbol %s\n", from, to, symbol);
-          non_det_add_transition(nfa, from, to, *symbol);
+        non_det_add_transition(nfa, from, to, *symbol);
         symbol = strtok(NULL, ",");
       }
       free(symbols);
