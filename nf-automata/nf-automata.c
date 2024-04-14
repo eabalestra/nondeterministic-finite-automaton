@@ -80,30 +80,33 @@ DFA *nfa_to_dfa(NFA *nfa)
   add_to_state(q0, nfa->initial_state);
   det_add_state(dfa, lambda_closure(nfa, q0));
   // print_dfa(dfa);
+
   for (int i = 0; i < dfa->states_cant; i++)
   {
-    printf("statescant: %d\n", dfa->states_cant);
+      printf("\n-------------------------------------");
+      printf("\nstatescant: %d\n", dfa->states_cant);
     State *current_state = dfa->states[i];
     printf("current  ");
     print_state(current_state);
 
-    for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
+    for (int symbol = 0; symbol < strlen(nfa->alphabet); symbol++)
     {
-      State *new_state = lambda_closure(nfa, move(nfa, current_state, nfa->alphabet[symbol]));
+        State *pre_lambda_state = move(nfa, current_state, nfa->alphabet[symbol]);
+      State *new_state = lambda_closure(nfa, pre_lambda_state);
       int last_index = det_add_state(dfa, new_state);
       printf("\nlast index %d", last_index);
 
-      if (last_index != -1)
-      {
-        printf("\n\ntransition from ");
-        print_state(current_state);
+        if (new_state->enteros->size != 0)
+        {
+            printf("\n\ntransition from ");
+            print_state(current_state);
 
-        printf("to ");
-        print_state(new_state);
-        printf("by symbol: %c\n", 'a'+symbol);
+            printf("to ");
+            print_state(new_state);
+            printf("by symbol: %c\n", 'a'+symbol);
 
-        det_add_transition(dfa, i, last_index, symbol);
-      }
+            det_add_transition(dfa, i, last_index,  nfa->alphabet[symbol]);
+        }
     }
   }
 

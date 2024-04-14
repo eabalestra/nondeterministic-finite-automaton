@@ -21,22 +21,20 @@ DFA *create_dfa()
 int det_add_state(DFA *dfa, State *state)
 {
   int last_index = dfa->states_cant;
-  if (last_index >= DET_MAX_STATES)
-  {
-    printf("Maximum states reached");
-    return -1;
-  }
+
   if (state->enteros->size == 0)
   {
     return -1;
   }
+
   for (int i = 0; i < last_index; i++)
   {
     if (equals(dfa->states[i], state))
     { // dont add it if exists
-      return -1;
+      return i;
     }
   }
+
   dfa->states[last_index] = state;
   dfa->states_cant = last_index + 1;
   return last_index;

@@ -5,14 +5,14 @@
 int main()
 {
   // create
-  char alphabet[3] = {'a', 'b', '_'};
+  char alphabet[2] = {'a', 'b'};
 
   NFA *nfa = create_nfa(alphabet);
-  /*
-    read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/example-automatons/automata_5.dot");
-     */
 
-  read_from_file(nfa, "/home/matybq/UNRC/automatas/nondeterministic-finite-automaton/example-automatons/automata_5.dot");
+  read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/example-automatons/automata_5.dot");
+
+
+  //read_from_file(nfa, "/home/matybq/UNRC/automatas/nondeterministic-finite-0automaton/example-automatons/automata_5.dot");
   printf("\n");
   //print_nfa(nfa);
   DFA *dfa = nfa_to_dfa(nfa);
