@@ -63,22 +63,3 @@ State *det_transition(DFA *dfa, int current_state, char symbol)
 
   return dfa->states[next_state_index];
 }
-
-void print_dfa(DFA *dfa)
-{
-  State *current_state;
-  printf("Initial state: q%d\n", dfa->initial_state);
-
-  for (int i = 0; i < dfa->states_cant; i++)
-  {
-    for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
-    {
-      current_state = det_transition(dfa, i, symbol);
-      printf("Transition: q{%d} --%c--> q%d\n", dfa->states[i]->enteros->elements[0], 'a' + symbol, dfa->transitions[i][symbol]);
-    }
-    if (current_state->is_accepting)
-    {
-      printf("State q%d is an accepting state\n", i);
-    }
-  }
-}

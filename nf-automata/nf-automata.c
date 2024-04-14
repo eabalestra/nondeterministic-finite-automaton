@@ -77,13 +77,14 @@ DFA *nfa_to_dfa(NFA *nfa)
 {
   DFA *dfa = create_dfa();
   State *q0 = create_state();
+    printf("PRIMER ESTADO: %d",nfa->initial_state);
   add_to_state(q0, nfa->initial_state);
   det_add_state(dfa, lambda_closure(nfa, q0));
   // print_dfa(dfa);
 
   for (int i = 0; i < dfa->states_cant; i++)
   {
-      printf("\n-------------------------------------");
+        printf("\n-------------------------------------");
       printf("\nstatescant: %d\n", dfa->states_cant);
     State *current_state = dfa->states[i];
     printf("current  ");
@@ -115,6 +116,12 @@ DFA *nfa_to_dfa(NFA *nfa)
 
 State *lambda_closure(NFA *nfa, State *state)
 {
+    State *result = create_state();
+
+  for (int i = 0; i < state->enteros->size; ++i) {
+      add_to_state(result, state->enteros->elements[i]);
+  }
+
   Node *node;
 
   for (int i = 0; i < (state->enteros->size); ++i)
@@ -124,18 +131,18 @@ State *lambda_closure(NFA *nfa, State *state)
 
     while (node != NULL && node->data != -1)
     {
-      add_to_state(state, node->data);
-      node = node->next;
+        add_to_state(state, node->data);
+        add_to_state(result, node->data);
+        node = node->next;
     }
   }
 
-  return state;
+  return result;
 }
 
 State *move(NFA *nfa, State *state, char symbol)
 {
-  int empty_array[DET_MAX_STATES];
-  State *result = create_state(empty_array);
+  State *result = create_state();
   Node *node;
 
   for (int i = 0; i < state->enteros->size; ++i)
