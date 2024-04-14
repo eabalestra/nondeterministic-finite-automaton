@@ -77,49 +77,34 @@ DFA *nfa_to_dfa(NFA *nfa)
 {
   DFA *dfa = create_dfa();
   State *q0 = create_state();
-    printf("PRIMER ESTADO: %d",nfa->initial_state);
   add_to_state(q0, nfa->initial_state);
   det_add_state(dfa, lambda_closure(nfa, q0));
-  // print_dfa(dfa);
 
   for (int i = 0; i < dfa->states_cant; i++)
   {
-        printf("\n-------------------------------------");
-      printf("\nstatescant: %d\n", dfa->states_cant);
     State *current_state = dfa->states[i];
-    printf("current  ");
-    print_state(current_state);
-
     for (int symbol = 0; symbol < strlen(nfa->alphabet); symbol++)
     {
-        State *pre_lambda_state = move(nfa, current_state, nfa->alphabet[symbol]);
+      State *pre_lambda_state = move(nfa, current_state, nfa->alphabet[symbol]);
       State *new_state = lambda_closure(nfa, pre_lambda_state);
       int last_index = det_add_state(dfa, new_state);
-      printf("\nlast index %d", last_index);
-
-        if (new_state->enteros->size != 0)
-        {
-            printf("\n\ntransition from ");
-            print_state(current_state);
-
-            printf("to ");
-            print_state(new_state);
-            printf("by symbol: %c\n", 'a'+symbol);
-
-            det_add_transition(dfa, i, last_index,  nfa->alphabet[symbol]);
-        }
+      if (new_state->enteros->size != 0)
+      {
+        det_add_transition(dfa, i, last_index, nfa->alphabet[symbol]);
+      }
     }
   }
-
+  set_accepting(dfa, nfa);
   return dfa;
 }
 
 State *lambda_closure(NFA *nfa, State *state)
 {
-    State *result = create_state();
+  State *result = create_state();
 
-  for (int i = 0; i < state->enteros->size; ++i) {
-      add_to_state(result, state->enteros->elements[i]);
+  for (int i = 0; i < state->enteros->size; ++i)
+  {
+    add_to_state(result, state->enteros->elements[i]);
   }
 
   Node *node;
@@ -131,9 +116,9 @@ State *lambda_closure(NFA *nfa, State *state)
 
     while (node != NULL && node->data != -1)
     {
-        add_to_state(state, node->data);
-        add_to_state(result, node->data);
-        node = node->next;
+      add_to_state(state, node->data);
+      add_to_state(result, node->data);
+      node = node->next;
     }
   }
 

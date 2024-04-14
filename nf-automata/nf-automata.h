@@ -40,5 +40,6 @@ int belongs(NFA *nfa, int current_node, char input[]);
 char *get_consumed_chain(NFA *nfa, int current_node_data, char *input, Node *node);
 
 void print_nfa(NFA *nfa);
+void set_accepting(DFA *dfa, NFA *nfa);
 
 #endif // NF_AUTOMATA_NF_AUTOMATA_H

@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "../nf-automata/nf-automata.h"
 
 DFA *create_dfa()
 {
@@ -57,18 +58,58 @@ State *det_transition(DFA *dfa, int current_state, char symbol)
   int next_state_index = dfa->transitions[current_state][symbol_index];
   if (next_state_index == -1)
   {
-    printf("No deterministic transition defined for state %d with symbol %c\n", current_state, symbol);
-    return create_state(-1);
+    return NULL;
   }
 
   return dfa->states[next_state_index];
 }
 
+void set_accepting(DFA *dfa, NFA *nfa)
+{
+  for (int i = 0; i < dfa->states_cant; i++)
+  {
+    for (int j = 0; j < DET_MAX_SYMBOLS; j++)
+    {
+      if (nfa->is_accepting[j] && contains(dfa->states[i]->enteros, j))
+      {
+        det_set_accepting(dfa, i);
+      }
+    }
+  }
+}
 
-void dfa_to_dot(DFA *dfa, const char *filename) {
+void print_dfa(DFA *dfa)
+{
+
+  for (int i = 0; i < dfa->states_cant; i++)
+  {
+    State *state = dfa->states[i];
+    if (state->is_accepting)
+    {
+      print_state(state);
+      printf("IS ACCEPTING\n");
+    }
+
+    for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
+    {
+      State *goal = det_transition(dfa, i, 'a' + symbol);
+      if (goal != NULL)
+      {
+        printf("-----------------------------------\nTransition from ");
+        print_state(state);
+        printf("by '%c' to ", 'a' + symbol);
+        print_state(goal);
+      }
+    }
+  }
+}
+
+void dfa_to_dot(DFA *dfa, const char *filename)
+{
   FILE *file = fopen(filename, "w");
 
-  if (file == NULL) {
+  if (file == NULL)
+  {
     printf("Error creating dot file: %s\n", filename);
     return;
   }
@@ -78,15 +119,14 @@ void dfa_to_dot(DFA *dfa, const char *filename) {
   fprintf(file, "    inic[shape=point];\n");
   fprintf(file, "\n    inic->q%i;\n\n", dfa->initial_state);
 
-
-  for (int from = 0; from < dfa->states_cant ; from++)
+  for (int from = 0; from < dfa->states_cant; from++)
   {
     for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
     {
       int data = dfa->transitions[from][symbol];
       if (data != -1)
       {
-        fprintf(file, "    q%d->q%d [label=\"%c\"];\n", from,data, 'a' + symbol);
+        fprintf(file, "    q%d->q%d [label=\"%c\"];\n", from, data, 'a' + symbol);
       }
     }
     if (dfa->states[from]->is_accepting == 1)
@@ -94,8 +134,8 @@ void dfa_to_dot(DFA *dfa, const char *filename) {
       fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
     }
   }
-  fprintf(file,"}");
-  for(int state = 0; state < dfa->states_cant; state++)
+  fprintf(file, "}");
+  for (int state = 0; state < dfa->states_cant; state++)
   {
     fprintf(file, "\n//State q%i: {", state);
     for (int i = 0; i < dfa->states[state]->enteros->size; i++)
@@ -103,12 +143,11 @@ void dfa_to_dot(DFA *dfa, const char *filename) {
       fprintf(file, "%d", dfa->states[state]->enteros->elements[i]);
       if (i < dfa->states[state]->enteros->size - 1)
       {
-        fprintf(file,", ");
+        fprintf(file, ", ");
       }
     }
     fprintf(file, "}\n");
   }
-
 
   fclose(file);
 }

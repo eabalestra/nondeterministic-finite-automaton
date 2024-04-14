@@ -62,20 +62,7 @@ void print_state(State *state)
     return;
   }
 
-  printf("State: {");
-
-  for (int i = 0; i < state->enteros->size; i++)
-  {
-    printf("%d", state->enteros->elements[i]);
-    if (i < state->enteros->size - 1)
-    {
-      printf(", ");
-    }
-  }
-  printf("}\n");
-
-  if (state->is_accepting)
-  {
-    printf("ACCEPTING STATE");
-  }
+  printf("q");
+  print_set(state->enteros);
+  printf("\n");
 }
