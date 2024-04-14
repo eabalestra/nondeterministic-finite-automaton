@@ -9,14 +9,14 @@ int main()
 
   NFA *nfa = create_nfa(alphabet);
 
-  read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/example-automatons/automata_6.dot");
+  read_from_file(nfa, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/tp1m/nondeterministic-finite-automaton/example-automatons/automata_7.dot");
 
 
   //read_from_file(nfa, "/home/matybq/UNRC/automatas/nondeterministic-finite-0automaton/example-automatons/automata_5.dot");
   printf("\n");
   //print_nfa(nfa);
   DFA *dfa = nfa_to_dfa(nfa);
-
+  dfa_to_dot(dfa, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/tp1m/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
   // check if a string is accepted
   /*char input[] = "ba";
   printf("\nInput string: %s\n", input);

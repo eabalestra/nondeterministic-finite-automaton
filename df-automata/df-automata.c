@@ -63,3 +63,52 @@ State *det_transition(DFA *dfa, int current_state, char symbol)
 
   return dfa->states[next_state_index];
 }
+
+
+void dfa_to_dot(DFA *dfa, const char *filename) {
+  FILE *file = fopen(filename, "w");
+
+  if (file == NULL) {
+    printf("Error creating dot file: %s\n", filename);
+    return;
+  }
+
+  fprintf(file, "digraph{\n");
+  fprintf(file, "    rankdir=LR;\n");
+  fprintf(file, "    inic[shape=point];\n");
+  fprintf(file, "\n    inic->q%i;\n\n", dfa->initial_state);
+
+
+  for (int from = 0; from < dfa->states_cant ; from++)
+  {
+    for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
+    {
+      int data = dfa->transitions[from][symbol];
+      if (data != -1)
+      {
+        fprintf(file, "    q%d->q%d [label=\"%c\"];\n", from,data, 'a' + symbol);
+      }
+    }
+    if (dfa->states[from]->is_accepting == 1)
+    {
+      fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
+    }
+  }
+  fprintf(file,"}");
+  for(int state = 0; state < dfa->states_cant; state++)
+  {
+    fprintf(file, "\n//State q%i: {", state);
+    for (int i = 0; i < dfa->states[state]->enteros->size; i++)
+    {
+      fprintf(file, "%d", dfa->states[state]->enteros->elements[i]);
+      if (i < dfa->states[state]->enteros->size - 1)
+      {
+        fprintf(file,", ");
+      }
+    }
+    fprintf(file, "}\n");
+  }
+
+
+  fclose(file);
+}

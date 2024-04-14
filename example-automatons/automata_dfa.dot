@@ -1,0 +1,34 @@
+digraph{
+    rankdir=LR;
+    inic[shape=point];
+
+    inic->q0;
+
+    q0->q1 [label="a"];
+    q1->q2 [label="b"];
+    q2->q3 [label="a"];
+    q3->q4 [label="a"];
+    q3->q5 [label="b"];
+    q4->q6 [label="b"];
+    q5->q7 [label="a"];
+    q6->q8 [label="a"];
+    q7->q5 [label="b"];
+    q8->q4 [label="a"];
+}
+//State q0: {0, 1, 4}
+
+//State q1: {2, 5}
+
+//State q2: {3, 6}
+
+//State q3: {2, 7}
+
+//State q4: {5}
+
+//State q5: {3}
+
+//State q6: {6}
+
+//State q7: {2}
+
+//State q8: {7}
