@@ -18,11 +18,11 @@ typedef struct
   char alphabet[NON_DET_MAX_SYMBOLS];
 } NFA;
 
-NFA *create_nfa(char alphabet[]);
+NFA *create_nfa();
 void non_det_add_transition(NFA *nfa, int from, int to, char symbol);
 void non_det_set_accepting(NFA *nfa, int state, int is_accepting);
 Node *non_det_transition(NFA *nfa, int current_state, char symbol);
-
+void print_alphabet(NFA *nfa);
 // Exercise 2
 void read_from_file(NFA *nfa, const char *filename);
 

@@ -3,9 +3,10 @@
 
 #include "set.h"
 
-typedef struct {
-    Set *enteros;
-    int is_accepting;
+typedef struct
+{
+  Set *enteros;
+  int is_accepting;
 } State;
 
 State *create_state();
