@@ -5,7 +5,7 @@
 int main()
 {
     char alphabet[3] = {'a', 'b'};
-
+  
     NFA *nfa = create_nfa(alphabet);
     int userChoice = 7;
 

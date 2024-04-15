@@ -43,4 +43,5 @@ char *get_consumed_chain(NFA *nfa, int current_node_data, char *input, Node *nod
 void print_nfa(NFA *nfa);
 void set_accepting(DFA *dfa, NFA *nfa);
 
+void nfa_to_dot(NFA *nfa, const char *filename);
 #endif // NF_AUTOMATA_NF_AUTOMATA_H

@@ -296,3 +296,36 @@ void read_from_file(NFA *nfa, const char *filename)
   regfree(&regex_accepting);
   fclose(file);
 }
+
+void nfa_to_dot(NFA *nfa, const char *filename) {
+  FILE *file = fopen(filename, "w");
+
+  if (file == NULL) {
+    printf("Error creating dot file: %s\n", filename);
+    return;
+  }
+
+  fprintf(file, "digraph{\n");
+  fprintf(file, "    rankdir=LR;\n");
+  fprintf(file, "    inic[shape=point];\n");
+  fprintf(file, "\n    inic->d%i;\n\n", nfa->initial_state);
+
+
+  for (int from = 0; from < NON_DET_MAX_STATES; from++)
+  {
+    for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; symbol++)
+    {
+      Node *node = nfa->transitions[from][symbol];
+      while (node != NULL && node->data != -1)
+      {
+        fprintf(file, "    q%d->q%d [label='%c']\n", from,node->data, 'a' + symbol);
+        node = node->next;
+      }
+    }
+    if (nfa->is_accepting[from])
+    {
+      fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
+    }
+  }
+  fprintf(file,"}");
+}

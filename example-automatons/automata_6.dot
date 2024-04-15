@@ -1,5 +1,4 @@
 digraph{
-
     rankdir=LR;
     inic[shape=point];
 
