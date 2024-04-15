@@ -1,5 +1,5 @@
 #include "../sets/set.h"
-#include "../sets/state.h"
+#include "../state/state.h"
 
 #ifndef NF_AUTOMATA_DF_AUTOMATA_H
 #define NF_AUTOMATA_DF_AUTOMATA_H

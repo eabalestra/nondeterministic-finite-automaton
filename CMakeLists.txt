@@ -11,6 +11,6 @@ add_executable(nf_automata main.c
         sets/set.h
         df-automata/df-automata.c
         df-automata/df-automata.h
-        sets/state.c
-        sets/state.h
+        state/state.c
+        state/state.h
 )
