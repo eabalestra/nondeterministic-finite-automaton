@@ -7,7 +7,7 @@
 #include <regex.h>
 #include <string.h>
 
-NFA *create_nfa(char alphabet[])
+NFA *create_nfa()
 {
   NFA *nfa = malloc(sizeof(NFA));
   for (int from = 0; from < NON_DET_MAX_STATES; from++)
@@ -19,11 +19,6 @@ NFA *create_nfa(char alphabet[])
     nfa->is_accepting[from] = 0;
   }
   nfa->initial_state = 0;
-
-  for (int i = 0; i < strlen(alphabet); i++)
-  {
-    nfa->alphabet[i] = alphabet[i];
-  }
 
   return nfa;
 }
@@ -256,45 +251,74 @@ void print_nfa(NFA *nfa)
 
 void read_from_file(NFA *nfa, const char *filename)
 {
-  FILE *file = fopen(filename, "r");
-  if (file == NULL)
-  {
-    printf("Could not open file %s\n", filename);
-    return;
-  }
-
-  regex_t regex_transition, regex_accepting;
-  regcomp(&regex_transition, "q([0-9]+)->q([0-9]+) \\[label=\"([a-z,_]+)\"\\];", REG_EXTENDED);
-  regcomp(&regex_accepting, "q([0-9])\\[shape=doublecircle\\];", REG_EXTENDED);
-
-  char line[256];
-  while (fgets(line, sizeof(line), file))
-  {
-    regmatch_t groups[4];
-
-    if (!regexec(&regex_accepting, line, 2, groups, 0))
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
     {
-      int state = atoi(line + groups[1].rm_so);
-      non_det_set_accepting(nfa, state, 1);
+        printf("Could not open file %s\n", filename);
+        return;
     }
-    else if (!regexec(&regex_transition, line, 4, groups, 0))
-    {
-      int from = atoi(line + groups[1].rm_so);
-      int to = atoi(line + groups[2].rm_so);
-      char *symbols = strndup(line + groups[3].rm_so, groups[3].rm_eo - groups[3].rm_so);
-      char *symbol = strtok(symbols, ",");
-      while (symbol != NULL)
-      {
-        non_det_add_transition(nfa, from, to, *symbol);
-        symbol = strtok(NULL, ",");
-      }
-      free(symbols);
-    }
-  }
 
-  regfree(&regex_transition);
-  regfree(&regex_accepting);
-  fclose(file);
+    regex_t regex_transition, regex_accepting, regex_alphabet;
+    regcomp(&regex_transition, "q([0-9]+)->q([0-9]+) \\[label=\"([a-z,_]+)\"\\];", REG_EXTENDED);
+    regcomp(&regex_accepting, "q([0-9])\\[shape=doublecircle\\];", REG_EXTENDED);
+    regcomp(&regex_alphabet, "\"([a-zA-Z])\"", REG_EXTENDED);
+
+    char line[256];
+    char alphabet_aux[NON_DET_MAX_SYMBOLS]; // Utiliza el tamaño máximo definido
+    int alphabet_index = 0;
+
+    while (fgets(line, sizeof(line), file))
+    {
+        regmatch_t groups[4]; // Cambia el tamaño de acuerdo al número de grupos capturados
+
+        if (!regexec(&regex_accepting, line, 2, groups, 0))
+        {
+            int state = atoi(line + groups[1].rm_so);
+            non_det_set_accepting(nfa, state, 1);
+        }
+        else if (!regexec(&regex_transition, line, 4, groups, 0))
+        {
+            int from = atoi(line + groups[1].rm_so);
+            int to = atoi(line + groups[2].rm_so);
+            char *symbols = strndup(line + groups[3].rm_so, groups[3].rm_eo - groups[3].rm_so);
+            char *symbol = strtok(symbols, ",");
+            while (symbol != NULL)
+            {
+                non_det_add_transition(nfa, from, to, *symbol);
+                if (!strchr(nfa->alphabet, *symbol)) // Verifica si el símbolo ya está en el alfabeto
+                {
+                    nfa->alphabet[alphabet_index++] = *symbol;
+                }
+                symbol = strtok(NULL, ",");
+            }
+            free(symbols);
+        }
+    }
+
+    //eliminar '_'
+    for (int i = alphabet_index - 1; i >= 0; i--)
+    {
+        if (nfa->alphabet[i] == LAMBDA_SYMBOL)
+        {
+            nfa->alphabet[alphabet_index] = '\0';
+            nfa->alphabet[i] = nfa->alphabet[alphabet_index-1];
+            break;
+        }
+    }
+
+    nfa->alphabet[alphabet_index] = '\0'; // Asegurar que el alfabeto esté terminado con NULL
+
+    regfree(&regex_transition);
+    regfree(&regex_accepting);
+    fclose(file);
+}
+
+void print_alphabet(NFA *nfa) {
+    printf("Alphabet: ");
+    for (int i = 0; i < NON_DET_MAX_SYMBOLS; i++) {
+        printf("%c ", nfa->alphabet[i]);
+    }
+    printf("\n");
 }
 
 void nfa_to_dot(NFA *nfa, const char *filename) {

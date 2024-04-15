@@ -4,9 +4,7 @@
 
 int main()
 {
-    char alphabet[3] = {'a', 'b'};
-  
-    NFA *nfa = create_nfa(alphabet);
+    NFA *nfa = create_nfa();
     int userChoice = 7;
 
     char filename[50];
@@ -15,7 +13,7 @@ int main()
     sprintf(filename, "example-automatons/automata_%d.dot", userChoice);
 
     read_from_file(nfa, filename);
-
+    print_alphabet(nfa);
     int menu = 0;
     char input[100];
 
