@@ -141,41 +141,45 @@ State *move(NFA *nfa, State *state, char symbol)
 
 int belongs(NFA *nfa, char input[])
 {
-    DFA *dfa = create_dfa();
-    dfa = nfa_to_dfa(nfa);
+  DFA *dfa = create_dfa();
+  dfa = nfa_to_dfa(nfa);
 
-    int index_current_state = dfa->initial_state;
-    for (int i = 0; i < strlen(input); ++i)
+  int index_current_state = dfa->initial_state;
+  for (int i = 0; i < strlen(input); ++i)
+  {
+    char symbol = input[i];
+    State *next_state = det_transition(dfa, index_current_state, symbol);
+    if (next_state == NULL || next_state->enteros->size == 0)
     {
-        char symbol = input[i];
-        State *next_state = det_transition(dfa, index_current_state, symbol);
-        if (next_state == NULL || next_state->enteros->size == 0)
-        {
-            return 0;
-        }
-
-        index_current_state = find_state_index(dfa, next_state);
+      return 0;
     }
 
-    if (dfa->states[index_current_state]->is_accepting == 1)
-    {
-        return 1;
-    }
-    return 0;
+    index_current_state = find_state_index(dfa, next_state);
+  }
+
+  if (dfa->states[index_current_state]->is_accepting == 1)
+  {
+    return 1;
+  }
+  return 0;
 }
 
-int find_state_index(DFA *dfa, State *state) {
-    if (dfa == NULL || state == NULL) {
-        return -1;
-    }
-
-    for (int i = 0; i < dfa->states_cant; i++) {
-        if (equals(dfa->states[i], state)) {
-            return i;
-        }
-    }
-
+int find_state_index(DFA *dfa, State *state)
+{
+  if (dfa == NULL || state == NULL)
+  {
     return -1;
+  }
+
+  for (int i = 0; i < dfa->states_cant; i++)
+  {
+    if (equals(dfa->states[i], state))
+    {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 int belongs_without_processing_nfa(NFA *nfa, char input[])
@@ -251,80 +255,84 @@ void print_nfa(NFA *nfa)
 
 void read_from_file(NFA *nfa, const char *filename)
 {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL)
+  FILE *file = fopen(filename, "r");
+  if (file == NULL)
+  {
+    printf("Could not open file %s\n", filename);
+    return;
+  }
+
+  regex_t regex_transition, regex_accepting, regex_alphabet;
+  regcomp(&regex_transition, "q([0-9]+)->q([0-9]+) \\[label=\"([a-z,_]+)\"\\];", REG_EXTENDED);
+  regcomp(&regex_accepting, "q([0-9])\\[shape=doublecircle\\];", REG_EXTENDED);
+  regcomp(&regex_alphabet, "\"([a-zA-Z])\"", REG_EXTENDED);
+
+  char line[256];
+  char alphabet_aux[NON_DET_MAX_SYMBOLS]; // Utiliza el tamaño máximo definido
+  int alphabet_index = 0;
+
+  while (fgets(line, sizeof(line), file))
+  {
+    regmatch_t groups[4]; // Cambia el tamaño de acuerdo al número de grupos capturados
+
+    if (!regexec(&regex_accepting, line, 2, groups, 0))
     {
-        printf("Could not open file %s\n", filename);
-        return;
+      int state = atoi(line + groups[1].rm_so);
+      non_det_set_accepting(nfa, state, 1);
     }
-
-    regex_t regex_transition, regex_accepting, regex_alphabet;
-    regcomp(&regex_transition, "q([0-9]+)->q([0-9]+) \\[label=\"([a-z,_]+)\"\\];", REG_EXTENDED);
-    regcomp(&regex_accepting, "q([0-9])\\[shape=doublecircle\\];", REG_EXTENDED);
-    regcomp(&regex_alphabet, "\"([a-zA-Z])\"", REG_EXTENDED);
-
-    char line[256];
-    char alphabet_aux[NON_DET_MAX_SYMBOLS]; // Utiliza el tamaño máximo definido
-    int alphabet_index = 0;
-
-    while (fgets(line, sizeof(line), file))
+    else if (!regexec(&regex_transition, line, 4, groups, 0))
     {
-        regmatch_t groups[4]; // Cambia el tamaño de acuerdo al número de grupos capturados
-
-        if (!regexec(&regex_accepting, line, 2, groups, 0))
+      int from = atoi(line + groups[1].rm_so);
+      int to = atoi(line + groups[2].rm_so);
+      char *symbols = strndup(line + groups[3].rm_so, groups[3].rm_eo - groups[3].rm_so);
+      char *symbol = strtok(symbols, ",");
+      while (symbol != NULL)
+      {
+        non_det_add_transition(nfa, from, to, *symbol);
+        if (!strchr(nfa->alphabet, *symbol)) // Verifica si el símbolo ya está en el alfabeto
         {
-            int state = atoi(line + groups[1].rm_so);
-            non_det_set_accepting(nfa, state, 1);
+          nfa->alphabet[alphabet_index++] = *symbol;
         }
-        else if (!regexec(&regex_transition, line, 4, groups, 0))
-        {
-            int from = atoi(line + groups[1].rm_so);
-            int to = atoi(line + groups[2].rm_so);
-            char *symbols = strndup(line + groups[3].rm_so, groups[3].rm_eo - groups[3].rm_so);
-            char *symbol = strtok(symbols, ",");
-            while (symbol != NULL)
-            {
-                non_det_add_transition(nfa, from, to, *symbol);
-                if (!strchr(nfa->alphabet, *symbol)) // Verifica si el símbolo ya está en el alfabeto
-                {
-                    nfa->alphabet[alphabet_index++] = *symbol;
-                }
-                symbol = strtok(NULL, ",");
-            }
-            free(symbols);
-        }
+        symbol = strtok(NULL, ",");
+      }
+      free(symbols);
     }
+  }
 
-    //eliminar '_'
-    for (int i = alphabet_index - 1; i >= 0; i--)
+  // eliminar '_'
+  for (int i = alphabet_index - 1; i >= 0; i--)
+  {
+    if (nfa->alphabet[i] == LAMBDA_SYMBOL)
     {
-        if (nfa->alphabet[i] == LAMBDA_SYMBOL)
-        {
-            nfa->alphabet[alphabet_index] = '\0';
-            nfa->alphabet[i] = nfa->alphabet[alphabet_index-1];
-            break;
-        }
+      nfa->alphabet[alphabet_index] = '\0';
+      nfa->alphabet[i] = nfa->alphabet[alphabet_index - 1];
+      break;
     }
+  }
 
-    nfa->alphabet[alphabet_index] = '\0'; // Asegurar que el alfabeto esté terminado con NULL
+  nfa->alphabet[alphabet_index] = '\0'; // Asegurar que el alfabeto esté terminado con NULL
 
-    regfree(&regex_transition);
-    regfree(&regex_accepting);
-    fclose(file);
+  regfree(&regex_transition);
+  regfree(&regex_accepting);
+  fclose(file);
 }
 
-void print_alphabet(NFA *nfa) {
-    printf("Alphabet: ");
-    for (int i = 0; i < NON_DET_MAX_SYMBOLS; i++) {
-        printf("%c ", nfa->alphabet[i]);
-    }
-    printf("\n");
+void print_alphabet(NFA *nfa)
+{
+  printf("Alphabet: ");
+  for (int i = 0; i < NON_DET_MAX_SYMBOLS; i++)
+  {
+    printf("%c ", nfa->alphabet[i]);
+  }
+  printf("\n");
 }
 
-void nfa_to_dot(NFA *nfa, const char *filename) {
+void nfa_to_dot(NFA *nfa, const char *filename)
+{
   FILE *file = fopen(filename, "w");
 
-  if (file == NULL) {
+  if (file == NULL)
+  {
     printf("Error creating dot file: %s\n", filename);
     return;
   }
@@ -334,7 +342,6 @@ void nfa_to_dot(NFA *nfa, const char *filename) {
   fprintf(file, "    inic[shape=point];\n");
   fprintf(file, "\n    inic->d%i;\n\n", nfa->initial_state);
 
-
   for (int from = 0; from < NON_DET_MAX_STATES; from++)
   {
     for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; symbol++)
@@ -342,7 +349,7 @@ void nfa_to_dot(NFA *nfa, const char *filename) {
       Node *node = nfa->transitions[from][symbol];
       while (node != NULL && node->data != -1)
       {
-        fprintf(file, "    q%d->q%d [label='%c']\n", from,node->data, 'a' + symbol);
+        fprintf(file, "    q%d->q%d [label='%c']\n", from, node->data, 'a' + symbol);
         node = node->next;
       }
     }
@@ -351,5 +358,5 @@ void nfa_to_dot(NFA *nfa, const char *filename) {
       fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
     }
   }
-  fprintf(file,"}");
+  fprintf(file, "}");
 }

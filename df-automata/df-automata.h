@@ -19,7 +19,7 @@ DFA *create_dfa();
 int det_add_state(DFA *dfa, State *state);
 void det_add_transition(DFA *dfa, int from, int to, char symbol);
 void det_set_accepting(DFA *dfa, int index);
-State* det_transition(DFA *dfa, int current_state, char symbol);
+State *det_transition(DFA *dfa, int current_state, char symbol);
 void print_dfa(DFA *dfa);
 void dfa_to_dot(DFA *dfa, const char *filename);
 

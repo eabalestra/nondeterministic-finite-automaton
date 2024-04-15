@@ -7,14 +7,15 @@
 
 #define MAX_SIZE 100
 
-typedef struct {
-    int elements[MAX_SIZE];
-    int size;
+typedef struct
+{
+  int elements[MAX_SIZE];
+  int size;
 } Set;
 
-Set* create_set();
-void insert_set(Set* set, int element);
-int contains(Set* set, int element);
-void print_set(Set* set);
+Set *create_set();
+void insert_set(Set *set, int element);
+int contains(Set *set, int element);
+void print_set(Set *set);
 
-#endif //NF_AUTOMATA_SET_H
+#endif // NF_AUTOMATA_SET_H
