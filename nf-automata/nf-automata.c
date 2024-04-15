@@ -23,7 +23,6 @@ NFA *create_nfa(char alphabet[])
   for (int i = 0; i < strlen(alphabet); i++)
   {
     nfa->alphabet[i] = alphabet[i];
-    printf("SYMBOL: %c\n", alphabet[i]);
   }
 
   return nfa;
@@ -145,37 +144,70 @@ State *move(NFA *nfa, State *state, char symbol)
   return result;
 }
 
-int belongs_non_det(NFA *nfa, char input[])
+int belongs(NFA *nfa, char input[])
 {
-  return belongs(nfa, nfa->initial_state, input);
+    DFA *dfa = create_dfa();
+    dfa = nfa_to_dfa(nfa);
+
+    int index_current_state = dfa->initial_state;
+    for (int i = 0; i < strlen(input); ++i)
+    {
+        char symbol = input[i];
+        State *next_state = det_transition(dfa, index_current_state, symbol);
+        if (next_state == NULL || next_state->enteros->size == 0)
+        {
+            return 0;
+        }
+
+        index_current_state = find_state_index(dfa, next_state);
+    }
+
+    if (dfa->states[index_current_state]->is_accepting == 1)
+    {
+        return 1;
+    }
+    return 0;
 }
 
-int belongs(NFA *nfa, int current_node, char *input)
+int find_state_index(DFA *dfa, State *state) {
+    if (dfa == NULL || state == NULL) {
+        return -1;
+    }
+
+    for (int i = 0; i < dfa->states_cant; i++) {
+        if (equals(dfa->states[i], state)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int belongs_without_processing_nfa(NFA *nfa, char input[])
 {
-  printf("current %d\n", current_node);
+  return recursive_belongs_without_processing_nfa(nfa, nfa->initial_state, input);
+}
+
+int recursive_belongs_without_processing_nfa(NFA *nfa, int current_node, char input[])
+{
   if (*input == '\0' && nfa->is_accepting[current_node])
   {
-    printf("string consumed totally and finished on an ACCEPTING state !\n");
     return 1;
   }
   if (*input == '\0' && !nfa->is_accepting[current_node])
   {
-    printf("string consumed totally and finished on an NON accepting state !\n");
     return 0;
   }
   if (current_node == ERROR_STATE)
   {
-    printf("nopath !\n");
     return 0;
   }
 
   Node *next_node = non_det_transition(nfa, current_node, *input);
-  printList(next_node);
   while (next_node != NULL && next_node->data != ERROR_STATE)
   {
     char *input_copy = get_consumed_chain(nfa, current_node, input, next_node);
-    printf("Next trans: from state: %d and string: %s\n", next_node->data, input_copy);
-    if (belongs(nfa, next_node->data, input_copy))
+    if (recursive_belongs_without_processing_nfa(nfa, next_node->data, input_copy))
     {
       return 1;
     }
@@ -189,14 +221,11 @@ char *get_consumed_chain(NFA *nfa, int current_node_data, char *input, Node *nod
 {
   if (nfa->transitions[current_node_data][NON_DET_MAX_SYMBOLS - 1]->data == node->data)
   {
-    printf("Lambda from %d to %d\n", current_node_data, node->data);
-
     return input;
   }
   int symbol_index = *input - 'a'; // Convert the symbol to an index
   if (nfa->transitions[current_node_data][symbol_index]->data != -1)
   {
-    printf("must consume from %d \n", current_node_data);
     return input + 1;
   }
 
@@ -246,7 +275,6 @@ void read_from_file(NFA *nfa, const char *filename)
     if (!regexec(&regex_accepting, line, 2, groups, 0))
     {
       int state = atoi(line + groups[1].rm_so);
-      printf("Setting state %d as accepting\n", state);
       non_det_set_accepting(nfa, state, 1);
     }
     else if (!regexec(&regex_transition, line, 4, groups, 0))
@@ -257,7 +285,6 @@ void read_from_file(NFA *nfa, const char *filename)
       char *symbol = strtok(symbols, ",");
       while (symbol != NULL)
       {
-        printf("Adding non_det_transition from %d to %d with symbol %s\n", from, to, symbol);
         non_det_add_transition(nfa, from, to, *symbol);
         symbol = strtok(NULL, ",");
       }

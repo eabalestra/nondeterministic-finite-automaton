@@ -32,11 +32,12 @@ State *lambda_closure(NFA *nfa, State *state);
 State *move(NFA *nfa, State *state, char symbol);
 
 // Exercise 4
+int belongs(NFA *nfa, char input[]);
+int find_state_index(DFA *dfa, State *next_state);
 
-
-//
-int belongs_non_det(NFA *nfa, char input[]);
-int belongs(NFA *nfa, int current_node, char input[]);
+// belongs que no transforma el NFA a DFA, no acepta trasiciones lambda en bucle
+int belongs_without_processing_nfa(NFA *nfa, char input[]);
+int recursive_belongs_without_processing_nfa(NFA *nfa, int current_node, char input[]);
 char *get_consumed_chain(NFA *nfa, int current_node_data, char *input, Node *node);
 
 void print_nfa(NFA *nfa);

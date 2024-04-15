@@ -9,7 +9,6 @@
 
 typedef struct {
     int elements[MAX_SIZE];
-    int marked[MAX_SIZE];
     int size;
 } Set;
 

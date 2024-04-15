@@ -1,36 +1,65 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include "nf-automata/nf-automata.h"
-#include "sets/state.h"
 
 int main()
 {
+    char alphabet[3] = {'a', 'b'};
 
-  char alphabet[3] = {'a', 'b'};
-  NFA *nfa = create_nfa(alphabet);
+    NFA *nfa = create_nfa(alphabet);
+    int userChoice = 7;
 
-  // read_from_file(nfa, "/home/agustin/Desktop/university/automatas-y-lenguajes/repository/nondeterministic-finite-automaton/example-automatons/automata_6.dot");
-  /* read_from_file(nfa, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/tp1m/nondeterministic-finite-automaton/example-automatons/automata_7.dot"); */
+    char filename[50];
+    printf("Enter the automata number: ");
+    scanf("%d", &userChoice);
+    sprintf(filename, "example-automatons/automata_%d.dot", userChoice);
 
-  read_from_file(nfa, "/home/matybq/UNRC/automatas/nondeterministic-finite-automaton/example-automatons/automata_5.dot");
-  printf("\n");
-  // print_nfa(nfa);
-  DFA *dfa = nfa_to_dfa(nfa);
-  //dfa_to_dot(dfa, "/home/matybq/UNRC/automatas/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot/home/matybq/UNRC/automatas/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
-  print_dfa(dfa);
+    read_from_file(nfa, filename);
 
-  //  check if a string is accepted
-  /*char input[] = "ba";
-  printf("\nInput string: %s\n", input);
-  int accepted = belongs_non_det(nfa, input);
+    int menu = 0;
+    char input[100];
 
-  if (accepted)
-  {
-    printf("The input string is accepted by the NFA\n");
-  }
-  else
-  {
-    printf("The input string is not accepted by the NFA\n");
-  }*/
+    while (menu != 4)
+    {
+        printf("\n1. Print NFA\n");
+        printf("2. Check if a string is accepted by the NFA\n");
+        printf("3. Transform NFA to DFA\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &menu);
+        switch (menu) {
+            case 1:
+                printf("Opening the NFA automata in xdot...\n");
+                char command[50];
+                sprintf(command, "xdot example-automatons/automata_%d.dot",userChoice);
+                system(command);
+                break;
+            case 2:
+                printf("Enter the string to check: ");
+                scanf("%s", input);
+                int accepted = belongs(nfa, input);
+                if (accepted)
+                {
+                    printf("The input string is accepted by the NFA\n");
+                }
+                else
+                {
+                    printf("The input string is not accepted by the NFA\n");
+                }
+                break;
+            case 3:
+                DFA *dfa = nfa_to_dfa(nfa);
+                dfa_to_dot(dfa, "example-automatons/automata_dfa.dot");
+                printf("Opening the DFA automata in xdot...\n");
 
-  return 0;
+                system("xdot example-automatons/automata_dfa.dot");
+                break;
+            case 4:
+                printf("Exiting the program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please enter a number between 1 and 4.\n");
+                break;
+        }
+    }
 }
