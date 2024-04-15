@@ -2,6 +2,11 @@
 
 This project is a C program that converts a Non-Deterministic Finite Automaton (NFA) to a Deterministic Finite Automaton (DFA). It also provides functionality to check if a given string is accepted by the NFA or the resulting DFA.
 
+## Authors
+- Balestra Edgar Agustin - 43765718
+- Bernardi Quiroga Matias - 43808286
+- Urquiza Carlos Alfredo - 44112441 
+
 ## Usage
 
 The program provides a menu with the following options:
