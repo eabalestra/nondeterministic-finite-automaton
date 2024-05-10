@@ -44,4 +44,14 @@ void print_nfa(NFA *nfa);
 void set_accepting(DFA *dfa, NFA *nfa);
 
 void nfa_to_dot(NFA *nfa, const char *filename);
+
+/**
+ * TP 2
+ */
+int num_of_states(NFA *nfa);
+
+// Exercise 1
+// (c)
+NFA *kleene_closure(NFA *nfa);
+
 #endif // NF_AUTOMATA_NF_AUTOMATA_H

@@ -7,6 +7,8 @@
 #include <regex.h>
 #include <string.h>
 
+void copy_automata(NFA *nfa, NFA *result);
+
 NFA *create_nfa()
 {
   NFA *nfa = malloc(sizeof(NFA));
@@ -264,7 +266,7 @@ void read_from_file(NFA *nfa, const char *filename)
 
   regex_t regex_transition, regex_accepting, regex_alphabet;
   regcomp(&regex_transition, "q([0-9]+)->q([0-9]+) \\[label=\"([a-z,_]+)\"\\];", REG_EXTENDED);
-  regcomp(&regex_accepting, "q([0-9])\\[shape=doublecircle\\];", REG_EXTENDED);
+  regcomp(&regex_accepting, "q([0-9]+)\\[shape=doublecircle\\];", REG_EXTENDED);
   regcomp(&regex_alphabet, "\"([a-zA-Z])\"", REG_EXTENDED);
 
   char line[256];
@@ -329,34 +331,102 @@ void print_alphabet(NFA *nfa)
 
 void nfa_to_dot(NFA *nfa, const char *filename)
 {
-  FILE *file = fopen(filename, "w");
+    FILE *file = fopen(filename, "w");
 
-  if (file == NULL)
-  {
-    printf("Error creating dot file: %s\n", filename);
-    return;
-  }
-
-  fprintf(file, "digraph{\n");
-  fprintf(file, "    rankdir=LR;\n");
-  fprintf(file, "    inic[shape=point];\n");
-  fprintf(file, "\n    inic->d%i;\n\n", nfa->initial_state);
-
-  for (int from = 0; from < NON_DET_MAX_STATES; from++)
-  {
-    for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; symbol++)
+    if (file == NULL)
     {
-      Node *node = nfa->transitions[from][symbol];
-      while (node != NULL && node->data != -1)
-      {
-        fprintf(file, "    q%d->q%d [label='%c']\n", from, node->data, 'a' + symbol);
-        node = node->next;
-      }
+        printf("Error creating dot file: %s\n", filename);
+        return;
     }
-    if (nfa->is_accepting[from])
+
+    fprintf(file, "digraph{\n");
+    fprintf(file, "    rankdir=LR;\n");
+    fprintf(file, "    inic[shape=point];\n");
+    fprintf(file, "\n    inic->q%i;\n\n", nfa->initial_state);
+
+    for (int from = 0; from < NON_DET_MAX_STATES; from++)
     {
-      fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
+        for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; symbol++)
+        {
+            Node *node = nfa->transitions[from][symbol];
+            while (node != NULL && node->data != -1)
+            {
+                fprintf(file, "    q%d->q%d [label=\"%c\"]\n", from, node->data, 'a' + symbol);
+                node = node->next;
+            }
+        }
+        if (nfa->is_accepting[from])
+        {
+            fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
+        }
     }
-  }
-  fprintf(file, "}");
+    fprintf(file, "}");
+
+    fclose(file);
+}
+
+NFA *kleene_closure(NFA *nfa)
+{
+    NFA *result = create_nfa();
+    non_det_add_transition(result, 0, 1, LAMBDA_SYMBOL);
+
+    copy_automata(nfa, result);
+
+    int num_states = num_of_states(result);
+    int final_state = num_states + 1;
+
+    for (int state = 0; state < NON_DET_MAX_STATES; state++)
+    {
+        if (nfa->is_accepting[state])
+        {
+            non_det_add_transition(result, state + 1, 1, LAMBDA_SYMBOL);
+            non_det_add_transition(result, state + 1, final_state, LAMBDA_SYMBOL);
+            non_det_set_accepting(result, state + 1, 0);
+        }
+    }
+
+    non_det_add_transition(result, 0, final_state, LAMBDA_SYMBOL);
+    non_det_set_accepting(result, final_state, 1);
+
+    return result;
+}
+
+void copy_automata(NFA *nfa, NFA *result) {
+    for (int from = 0; from < NON_DET_MAX_STATES; from++)
+    {
+        for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; symbol++)
+        {
+            Node *node = nfa->transitions[from][symbol];
+            while (node != NULL && node->data != -1)
+            {
+                non_det_add_transition(result, from + 1, node->data + 1, symbol + 'a');
+                node = node->next;
+            }
+        }
+        if (nfa->is_accepting[from])
+        {
+            non_det_set_accepting(result, from + 1, 1);
+        }
+    }
+}
+
+int num_of_states(NFA *nfa)
+{
+    int result = 0;
+    for (int from = 0; from < NON_DET_MAX_STATES; from++)
+    {
+        for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; ++symbol)
+        {
+            Node *node = nfa->transitions[from][symbol];
+            while (node != NULL && node->data != -1)
+            {
+                if (node->data > result)
+                {
+                    result = node->data;
+                }
+                node = node->next;
+            }
+        }
+    }
+    return result;
 }
