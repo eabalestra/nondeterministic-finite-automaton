@@ -389,7 +389,6 @@ NFA *nfa_union(NFA *nfa1, NFA *nfa2){
     return result;
 }
 
-
 NFA *kleene_closure(NFA *nfa)
 {
     NFA *result = create_nfa();
