@@ -51,6 +51,8 @@ void nfa_to_dot(NFA *nfa, const char *filename);
 int num_of_states(NFA *nfa);
 
 // Exercise 1
+// (a) 
+NFA *nfa_union(NFA *nfa1, NFA *nfa2);
 // (c)
 NFA *kleene_closure(NFA *nfa);
 

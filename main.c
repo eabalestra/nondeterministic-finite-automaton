@@ -66,20 +66,52 @@ int main()
     }*/
 
     NFA *nfa = create_nfa();
+    NFA *nfa1 = create_nfa();
+    NFA *nfa2 = create_nfa();
+
     /*non_det_add_transition(nfa, 0, 1, LAMBDA_SYMBOL);
     non_det_add_transition(nfa, 0, 3, LAMBDA_SYMBOL);
     non_det_add_transition(nfa, 1, 2, 'a');
     non_det_add_transition(nfa, 3, 4, 'b');
     non_det_add_transition(nfa, 2, 5, LAMBDA_SYMBOL);
     non_det_add_transition(nfa, 4, 5, LAMBDA_SYMBOL);
-    non_det_set_accepting(nfa, 5, 1);*/
-    read_from_file(nfa, "../example-automatons/automata_9.dot");
+    non_det_set_accepting(nfa, 5, 1);
+    read_from_file(nfa, "../example-automatons/automata_9.dot");*/
+    
 
+    //nfa_to_dot(nfa, "../example-automatons/automata_dfa.dot");
+    //system("xdot ../example-automatons/automata_dfa.dot");
+    //system("xdot /home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
+    //system("xdot /home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
 
-    nfa_to_dot(nfa, "../example-automatons/automata_dfa.dot");
-    system("xdot ../example-automatons/automata_dfa.dot");
+    //nfa = kleene_closure(nfa);
+    
+    read_from_file(nfa1, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_14.dot");
+    read_from_file(nfa2, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_15.dot");
 
-    nfa = kleene_closure(nfa);
-    nfa_to_dot(nfa, "../example-automatons/automata_dfa.dot");
-    system("xdot ../example-automatons/automata_dfa.dot");
+    nfa_to_dot(nfa1, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
+    nfa_to_dot(nfa2, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
+    nfa = nfa_union(nfa1, nfa2);
+    nfa_to_dot(nfa, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
+    //system("xdot /home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
+    
+    DFA *dfa = create_dfa();
+    dfa = nfa_to_dfa(nfa);
+
+    //dfa_to_dot(dfa, "/home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
+    //system("xdot /home/carlos/Escritorio/Uni/AutomatasYLenguajes/Tp1/nondeterministic-finite-automaton/example-automatons/automata_dfa.dot");
+
+    print_dfa(dfa);
+
+    //char input[100];
+    //scanf("%s", input);
+    //int accepted = belongs(nfa, input);
+    //if (accepted)
+    //{
+    //    printf("\nThe input string is accepted by the NFA\n");
+    //}
+    //else
+    //{
+    //    printf("\nThe input string is not accepted by the NFA\n");
+    //}
 }
