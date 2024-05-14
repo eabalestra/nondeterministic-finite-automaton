@@ -131,7 +131,7 @@ void dfa_to_dot(DFA *dfa, const char *filename)
     }
     if (dfa->states[from]->is_accepting == 1)
     {
-      fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
+      fprintf(file, "\n    q%d[shape=doublecircle];\n", from);
     }
   }
   fprintf(file, "}");

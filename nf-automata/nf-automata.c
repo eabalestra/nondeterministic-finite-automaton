@@ -8,6 +8,7 @@
 #include <string.h>
 
 void copy_automata(NFA *nfa, NFA *result);
+void copy_automata_with_index(NFA *nfa, NFA *result, int index);
 
 NFA *create_nfa()
 {
@@ -351,18 +352,41 @@ void nfa_to_dot(NFA *nfa, const char *filename)
             Node *node = nfa->transitions[from][symbol];
             while (node != NULL && node->data != -1)
             {
-                fprintf(file, "    q%d->q%d [label=\"%c\"]\n", from, node->data, 'a' + symbol);
+                fprintf(file, "    q%d->q%d [label=\"%c\"];\n", from, node->data, 'a' + symbol);
                 node = node->next;
             }
         }
         if (nfa->is_accepting[from])
         {
-            fprintf(file, "\n    q%d[shape=doublecircle]\n", from);
+            fprintf(file, "\n    q%d[shape=doublecircle];\n", from);
         }
     }
     fprintf(file, "}");
 
     fclose(file);
+}
+
+NFA *nfa_union(NFA *nfa1, NFA *nfa2){
+    NFA *result = create_nfa();
+    non_det_add_transition(result, 0, 1, LAMBDA_SYMBOL);
+
+    copy_automata_with_index(nfa1, result, 1);
+    int num_states = num_of_states(result);
+    non_det_add_transition(result, 0, num_states + 1, LAMBDA_SYMBOL);
+    copy_automata_with_index(nfa2, result, num_states + 1);
+    num_states = num_of_states(result);
+
+    for (int state = 0; state < NON_DET_MAX_STATES; state++)
+    {
+        if (result->is_accepting[state])
+        {
+            non_det_add_transition(result, state, num_states + 1, LAMBDA_SYMBOL);
+            non_det_set_accepting(result, state, 0);
+        }
+    }
+    non_det_set_accepting(result, num_states + 1 , 1);
+
+    return result;
 }
 
 NFA *kleene_closure(NFA *nfa)
@@ -407,6 +431,36 @@ void copy_automata(NFA *nfa, NFA *result) {
         {
             non_det_set_accepting(result, from + 1, 1);
         }
+    }
+}
+
+void copy_automata_with_index(NFA *nfa, NFA *result, int index) {
+    
+    for (int from = 0; from < NON_DET_MAX_STATES; from++)
+    {
+        for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; symbol++)
+        {
+            Node *node = nfa->transitions[from][symbol];
+            while (node != NULL && node->data != -1)
+            {
+                non_det_add_transition(result, index + from, node->data + index, symbol + 'a');      
+                node = node->next;
+            }
+        }
+        if (nfa->is_accepting[from])
+        {
+            non_det_set_accepting(result, index + from, 1);
+        }
+    }
+    //hace la copia del alfabeto
+    int i = 0;
+    while (i <= strlen(nfa->alphabet))
+    {
+        if(!strchr(result->alphabet, nfa->alphabet[i]))
+        {
+            result->alphabet[strlen(result->alphabet)] = nfa->alphabet[i];
+        }
+        i++;
     }
 }
 

@@ -1,0 +1,14 @@
+digraph{
+
+rankdir=LR;
+inic[shape=point];
+
+inic->q0;
+
+q0->q1 [label="b"];
+q1->q2 [label="o"];
+q2->q3 [label="c"];
+q3->q4 [label="a"];
+
+q4[shape=doublecircle];
+}

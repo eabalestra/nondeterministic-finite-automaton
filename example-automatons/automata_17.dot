@@ -1,0 +1,15 @@
+digraph{
+    rankdir=LR;
+    inic[shape=point];
+
+    inic->q0;
+
+    q0->q1 [label="f"];
+    q1->q2 [label="u"];
+    q2->q3 [label="t"];
+    q3->q4 [label="b"];
+    q4->q5 [label="o"];
+    q5->q6 [label="l"];
+
+    q6[shape=doublecircle];
+}
