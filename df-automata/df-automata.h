@@ -7,6 +7,8 @@
 #define DET_MAX_STATES 100
 #define DET_MAX_SYMBOLS 27
 
+
+
 typedef struct
 {
   State *states[DET_MAX_STATES];
@@ -23,4 +25,10 @@ State *det_transition(DFA *dfa, int current_state, char symbol);
 void print_dfa(DFA *dfa);
 void dfa_to_dot(DFA *dfa, const char *filename);
 
+/**
+ * TP 2
+ */
+
+//2
+void minimization(DFA *dfa);
 #endif // NF_AUTOMATA_DF_AUTOMATA_H

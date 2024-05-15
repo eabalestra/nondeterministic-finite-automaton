@@ -11,6 +11,7 @@ typedef struct
 {
   int elements[MAX_SIZE];
   int size;
+  int mark;
 } Set;
 
 Set *create_set();

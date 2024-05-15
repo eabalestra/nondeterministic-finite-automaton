@@ -6,6 +6,7 @@ Set *create_set()
 {
   Set *new_set = (Set *)malloc(sizeof(Set));
   new_set->size = 0;
+  new_set->mark = 0;
   return new_set;
 }
 
@@ -16,6 +17,10 @@ void insert_set(Set *set, int element)
     set->elements[set->size] = element;
     set->size++;
   }
+}
+
+void mark(Set *set, int bool){
+  set->mark = bool;
 }
 
 int contains(Set *set, int element)

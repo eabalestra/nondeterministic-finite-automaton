@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../nf-automata/nf-automata.h"
+#define NUM_SETS 10
+#define true 1
+#define false 0
 
 DFA *create_dfa()
 {
@@ -150,4 +153,42 @@ void dfa_to_dot(DFA *dfa, const char *filename)
   }
 
   fclose(file);
+}
+
+void minimization(DFA *dfa){
+  Set *states_inic[NUM_SETS]; // Arreglo de punteros a conjuntos
+  Set *states_end[NUM_SETS];
+  Set *states_x[NUM_SETS];
+
+  // Inicializa cada elemento del arreglo
+  for (int i = 0; i < NUM_SETS; i++) {
+      states_inic[i] = create_set();
+      states_end[i] = create_set();
+      states_x[i] = create_set();
+  }
+  Set x, y;
+
+  // División entre estados finales y no finales
+  for (int  i = 0; i < dfa->states_cant ; i++) {
+    if (!(dfa->states[i]->is_accepting == 1)) {
+      insert_set(states_inic[0], i);
+    } else {
+      insert_set(states_end[1], i);
+    }
+  }
+  print_set(states_inic[0]);
+  print_set(states_end[1]);
+
+  // Modificación de la grilla
+  for (int i = 0; i < DET_MAX_STATES; i++) {
+    for (int j = 0; j < DET_MAX_SYMBOLS; j++) {
+      if (dfa->transitions[i][j] != -1) {
+        //grid->cell[i][j] = 1; // Modifica la celda en la grilla
+        return 0;
+      }else{
+        //grid->cell[i][j] = 0; // Modifica la celda en la grilla
+        return 0;
+      }
+    }
+  }
 }

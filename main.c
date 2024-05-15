@@ -85,7 +85,7 @@ int main()
     */
 
    //main prueba UNION
-    NFA *nfa1 = create_nfa();
+    /*NFA *nfa1 = create_nfa();
     NFA *nfa2 = create_nfa();
     NFA *nfa3 = create_nfa();
     NFA *nfaU = create_nfa();
