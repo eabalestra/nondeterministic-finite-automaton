@@ -1,5 +1,4 @@
 #include "nf-automata.h"
-#include "../sets/set.h"
 #include "../df-automata/df-automata.h"
 
 #include <stdio.h>
@@ -394,7 +393,7 @@ NFA *kleene_closure(NFA *nfa)
     NFA *result = create_nfa();
     non_det_add_transition(result, 0, 1, LAMBDA_SYMBOL);
 
-    copy_automata(nfa, result);
+    copy_automata_with_index(nfa, result, 1);
 
     int num_states = num_of_states(result);
     int final_state = num_states + 1;
@@ -415,23 +414,25 @@ NFA *kleene_closure(NFA *nfa)
     return result;
 }
 
-void copy_automata(NFA *nfa, NFA *result) {
-    for (int from = 0; from < NON_DET_MAX_STATES; from++)
+NFA *concatenation(NFA *nfa1, NFA *nfa2)
+{
+    NFA *result = create_nfa();
+    copy_automata_with_index(nfa1, result, 0);
+
+    int num_states = num_of_states(nfa1);
+    non_det_add_transition(result, num_states, num_states + 1, LAMBDA_SYMBOL);
+    copy_automata_with_index(nfa2, result, num_states + 1);
+
+    for (int state = 0; state < NON_DET_MAX_STATES; state++)
     {
-        for (int symbol = 0; symbol < NON_DET_MAX_SYMBOLS; symbol++)
+        if (nfa1->is_accepting[state] == 1)
+
         {
-            Node *node = nfa->transitions[from][symbol];
-            while (node != NULL && node->data != -1)
-            {
-                non_det_add_transition(result, from + 1, node->data + 1, symbol + 'a');
-                node = node->next;
-            }
-        }
-        if (nfa->is_accepting[from])
-        {
-            non_det_set_accepting(result, from + 1, 1);
+            non_det_set_accepting(result, state, 0);
         }
     }
+
+    return result;
 }
 
 void copy_automata_with_index(NFA *nfa, NFA *result, int index) {

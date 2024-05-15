@@ -54,7 +54,13 @@ int num_of_states(NFA *nfa);
 // (a)
 NFA *nfa_union(NFA *nfa1, NFA *nfa2);
 
+// (b)
+NFA *concatenation(NFA *nfaA, NFA *nfa2);
+
 // (c)
 NFA *kleene_closure(NFA *nfa);
+
+void copy_automata(NFA *nfa, NFA *result);
+void copy_automata_with_index(NFA *nfa, NFA *result, int index);
 
 #endif // NF_AUTOMATA_NF_AUTOMATA_H

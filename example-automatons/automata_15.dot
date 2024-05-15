@@ -1,17 +1,11 @@
 digraph{
 
-rankdir=LR;
-inic[shape=point];
+    rankdir=LR;
+    inic[shape=point];
 
-inic->q0;
+    inic->q0;
 
-q0->q1 [label="j"];
-q1->q2 [label="u"];
-q2->q3 [label="n"];
-q3->q4 [label="i"];
-q4->q5 [label="o"];
-q5->q6 [label="r"];
-q6->q7 [label="s"];
+    q0->q1 [label="b"];
 
-q7[shape=doublecircle];
+    q1[shape=doublecircle];
 }
