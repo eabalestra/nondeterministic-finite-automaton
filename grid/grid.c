@@ -1,3 +1,7 @@
+/**
+me hizo renegar asiq puse todos los metodos en dfa.c 
+arreglar antes de entregar
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "../nf-automata/nf-automata.h"
@@ -19,4 +23,4 @@ Grid *create_grid() {
     }
 
     return new_grid;
-}
+}*/

@@ -16,6 +16,7 @@ typedef struct
 
 Set *create_set();
 void insert_set(Set *set, int element);
+void remove_set(Set *set, int element);
 int contains(Set *set, int element);
 void print_set(Set *set);
 

@@ -114,4 +114,37 @@ int main()
     dfa = nfa_to_dfa(nfaU);
     dfa_to_dot(dfa, "../example-automatons/automata_dfa.dot");
     system("xdot ../example-automatons/automata_dfa.dot");
+    */
+   /*
+    DFA *dfa = create_dfa();
+    det_add_transition(dfa, 0, 1, 'a');
+    det_add_transition(dfa, 0,4,'b');
+    det_add_transition(dfa, 1,2,'b');
+    det_add_transition(dfa, 1,4,'a');
+    det_add_transition(dfa, 2,3,'b');
+    det_add_transition(dfa, 2,4,'a');
+    det_add_transition(dfa, 3,4,'a');
+    det_add_transition(dfa, 3,2,'b');
+    det_add_transition(dfa, 4,4,'a');
+    det_add_transition(dfa, 4,4,'b');
+
+    dfa_to_dot(dfa, "example-automatons/automata_dfa.dot");
+    system("xdot example-automatons/automata_dfa.dot");
+
+    //minimization(dfa);
+
+    dfa_to_dot(dfa, "../example-automatons/automata_dfa.dot");
+    system("xdot example-automatons/automata_dfa.dot");
+    */
+    NFA *nfa = create_nfa();
+    read_from_file(nfa, "example-automatons/automata_17.dot");
+    //system("xdot example-automatons/automata_17.dot");
+
+    DFA *dfa = nfa_to_dfa(nfa);
+    dfa_to_dot(dfa, "example-automatons/automata_dfa.dot");
+    system("xdot example-automatons/automata_dfa.dot");
+
+
+    minimization(dfa);
+
 }
