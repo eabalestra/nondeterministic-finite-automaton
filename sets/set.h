@@ -1,7 +1,3 @@
-//
-// Created by agustin on 09/04/24.
-//
-
 #ifndef NF_AUTOMATA_SET_H
 #define NF_AUTOMATA_SET_H
 
