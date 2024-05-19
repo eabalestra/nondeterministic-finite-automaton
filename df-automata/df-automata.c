@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include "../nf-automata/nf-automata.h"
 
+#define NUM_SETS 10
+#define true 1
+#define false 0
+
 DFA *create_dfa()
 {
   DFA *dfa = malloc(sizeof(DFA));
@@ -155,4 +159,62 @@ void dfa_to_dot(DFA *dfa, const char *filename)
   }
 
   fclose(file);
+}
+
+// Implementacion de minimization, hay que factorizarlo y quitarle las cosas que estan de mas
+// MUCHO COMENTARIO, SACARLOS ANTES DE ENTREGAR, PREGUNTENME SI NO ENTIENDEN ALGO:) ATTE:YO
+DFA *minimization(DFA *dfa)
+{
+  Set *no_end_states[NUM_SETS]; // Arreglo de punteros a conjuntos
+  Set *end_states[NUM_SETS];
+
+  // aca hacemos la primera division entre Set de estados finales y los no finales
+  init_parts(dfa, no_end_states, end_states);
+
+  // creamos la tabla de transiciiones
+  Grid *grid = create_grid();
+  // necesito para los ciclos cuantos estados tiene el conjunto de finales y NO-finales, asiq los guarde en grid:)
+  grid->no_end_cant_states = no_end_states[0]->size;
+  grid->end_cant_states = end_states[0]->size;
+  // Calcula a que clase de equivalencia va cada stado por cada letra
+  calculate_grid(dfa, grid, no_end_states, end_states);
+  // quitar esto antes de la entrega finar
+  print_grid(grid);
+  printf("-------------------------------------------------------------------------\n");
+  // hago una copia de la grilla para poder comparar con la nueva que voy a generar y saber cuando para el ciclo y que
+  // ya no puedo separar mas las equivalencias
+  Grid *copy = create_grid();
+  // condicion de finalizacion
+  while (grid_equals(copy, grid) != 1)
+  {
+    // actualizo la copia
+    copy = copy_grid(grid);
+    // aca dentro del calculate, a partir de grid, separo las clases de equivalencia y vuelvo a calcular grid
+    calculate_parts(dfa, no_end_states, end_states, grid);
+  }
+  // sacar esto pero es como quedan las particiones al finalizar el ciclo
+  print_parts(no_end_states, end_states);
+
+  // construir el automata en base a grid
+  grid_clean(grid, no_end_states, end_states);
+  print_grid(grid);
+  int cant_parts = sum_cant_parts(grid, no_end_states, end_states);
+  printf("Cantidad total de particiones: %d \n", cant_parts);
+  DFA *result = create_dfa();
+  printf("q%d->q%d [label=%c];\n", 0, grid->number[0][0], 'a');
+  /**
+  for (int i = 0; i < cant_parts; i++)
+  {
+    if (grid->number[i][0] != -1)
+    {
+      for (int j = 'a'; j <= 'z'; j++)
+      {
+        //esto no anda, hay que arreglar lo del malloc
+        det_add_transition(result, i, grid->number[i][j-'a'], j);
+      }
+    }
+  }
+  print_dfa(result);*/
+  print_parts(no_end_states, end_states);
+  return result;
 }
