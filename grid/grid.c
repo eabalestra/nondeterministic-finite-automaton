@@ -281,13 +281,9 @@ void calculate_parts(DFA *dfa, Set *no_end_states[], Set *end_states[], Grid *gr
   }
   // calculo la grid con la nueva particiones que se formaron
   calculate_grid(dfa, grid, no_end_states, end_states);
-  // quitar esto
-  print_parts(no_end_states, end_states);
-  print_grid(grid);
-  printf("-------------------------------------------------------------------------\n");
 }
 
-// printea las particiones EZ
+// Printea las particiones
 void print_parts(Set *no_end_states[], Set *end_states[])
 {
   printf("No End States:\n");

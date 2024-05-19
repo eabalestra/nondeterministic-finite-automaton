@@ -34,5 +34,8 @@ int main()
   dfa_to_dot(dfa, "example-automatons/automata_dfa.dot");
   system("xdot example-automatons/automata_dfa.dot");
 
-  //add minimization
+  dfa = minimization(dfa);
+  print_dfa(dfa);
+  dfa_to_dot(dfa, "example-automatons/automata_dfa.dot");
+  system("xdot example-automatons/automata_dfa.dot");
 }

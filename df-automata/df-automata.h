@@ -28,6 +28,5 @@ void print_dfa(DFA *dfa);
 void dfa_to_dot(DFA *dfa, const char *filename);
 
 /* TP 2 */
-// 2
 DFA *minimization(DFA *dfa);
 #endif // NF_AUTOMATA_DF_AUTOMATA_H

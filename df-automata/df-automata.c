@@ -89,7 +89,7 @@ void print_dfa(DFA *dfa)
   {
     State *state = dfa->states[i];
     print_state(state);
-    if (state->is_accepting)
+    if (state->is_accepting == 1)
     {
       printf("Is an accepting state\n");
     }
@@ -161,60 +161,58 @@ void dfa_to_dot(DFA *dfa, const char *filename)
   fclose(file);
 }
 
-// Implementacion de minimization, hay que factorizarlo y quitarle las cosas que estan de mas
-// MUCHO COMENTARIO, SACARLOS ANTES DE ENTREGAR, PREGUNTENME SI NO ENTIENDEN ALGO:) ATTE:YO
 DFA *minimization(DFA *dfa)
 {
-  Set *no_end_states[NUM_SETS]; // Arreglo de punteros a conjuntos
+  Set *no_end_states[NUM_SETS];
   Set *end_states[NUM_SETS];
 
-  // aca hacemos la primera division entre Set de estados finales y los no finales
+  // Inicializa las particiones de estados finales y no finales
   init_parts(dfa, no_end_states, end_states);
 
-  // creamos la tabla de transiciiones
   Grid *grid = create_grid();
-  // necesito para los ciclos cuantos estados tiene el conjunto de finales y NO-finales, asiq los guarde en grid:)
   grid->no_end_cant_states = no_end_states[0]->size;
   grid->end_cant_states = end_states[0]->size;
-  // Calcula a que clase de equivalencia va cada stado por cada letra
-  calculate_grid(dfa, grid, no_end_states, end_states);
-  // quitar esto antes de la entrega finar
-  print_grid(grid);
-  printf("-------------------------------------------------------------------------\n");
-  // hago una copia de la grilla para poder comparar con la nueva que voy a generar y saber cuando para el ciclo y que
-  // ya no puedo separar mas las equivalencias
+
+  calculate_grid(dfa, grid, no_end_states, end_states); // Calcula a que clase de equivalencia va cada estado por cada letra
+
   Grid *copy = create_grid();
-  // condicion de finalizacion
   while (grid_equals(copy, grid) != 1)
   {
-    // actualizo la copia
     copy = copy_grid(grid);
-    // aca dentro del calculate, a partir de grid, separo las clases de equivalencia y vuelvo a calcular grid
+    // Calcula nuevas particiones y vuelve a calcular el grid
     calculate_parts(dfa, no_end_states, end_states, grid);
   }
-  // sacar esto pero es como quedan las particiones al finalizar el ciclo
-  print_parts(no_end_states, end_states);
 
-  // construir el automata en base a grid
+  // Construir el automata en base al grid
   grid_clean(grid, no_end_states, end_states);
-  print_grid(grid);
   int cant_parts = sum_cant_parts(grid, no_end_states, end_states);
-  printf("Cantidad total de particiones: %d \n", cant_parts);
-  DFA *result = create_dfa();
-  printf("q%d->q%d [label=%c];\n", 0, grid->number[0][0], 'a');
-  /**
+  DFA *min_dfa = create_dfa();
+  print_grid(grid);
+
   for (int i = 0; i < cant_parts; i++)
   {
-    if (grid->number[i][0] != -1)
+    if (grid->number[i][0] != -1) // Crea los estados validos
     {
-      for (int j = 'a'; j <= 'z'; j++)
+      State *s = create_state();
+      add_to_state(s, i);
+      int new_state_index = det_add_state(min_dfa, s);
+
+      if (dfa->states[i]->is_accepting == 1)
       {
-        //esto no anda, hay que arreglar lo del malloc
-        det_add_transition(result, i, grid->number[i][j-'a'], j);
+        det_set_accepting(min_dfa, new_state_index);
+      }
+
+      for (int j = 0; j < DET_MAX_SYMBOLS; j++)
+      {
+        if (grid->number[i][j] != 0) // Crea las tansiciones validas
+        {
+          char symbol = 'a' + j;
+          int to_state = grid->number[i][j];
+          det_add_transition(min_dfa, new_state_index, to_state, symbol);
+        }
       }
     }
   }
-  print_dfa(result);*/
-  print_parts(no_end_states, end_states);
-  return result;
+
+  return min_dfa;
 }
