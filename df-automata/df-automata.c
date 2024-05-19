@@ -80,24 +80,29 @@ void set_accepting(DFA *dfa, NFA *nfa)
 
 void print_dfa(DFA *dfa)
 {
-
+  printf("DFA STATES: \n");
   for (int i = 0; i < dfa->states_cant; i++)
   {
     State *state = dfa->states[i];
+    print_state(state);
     if (state->is_accepting)
     {
-      print_state(state);
-      printf("IS ACCEPTING\n");
+      printf("Is an accepting state\n");
     }
+  }
+
+  for (int i = 0; i < dfa->states_cant; i++)
+  {
+    printf("-----------------------------------\nTransitions from: \n");
+    State *state = dfa->states[i];
+    print_state(state);
 
     for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
     {
       State *goal = det_transition(dfa, i, 'a' + symbol);
       if (goal != NULL)
       {
-        printf("-----------------------------------\nTransition from ");
-        print_state(state);
-        printf("by '%c' to ", 'a' + symbol);
+        printf("'%c' -> ", 'a' + symbol);
         print_state(goal);
       }
     }
