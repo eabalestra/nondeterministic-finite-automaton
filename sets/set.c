@@ -57,7 +57,7 @@ int contains(Set *set, int element)
 
 void print_set(Set *set)
 {
-  printf("cantidad de estados:%i\n{", set->size);
+  printf("{ ");
   for (int i = 0; i < set->size; i++)
   {
     printf("%d ", set->elements[i]);
