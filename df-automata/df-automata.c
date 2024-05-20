@@ -52,10 +52,11 @@ void det_add_transition(DFA *dfa, int from, int to, char symbol)
   add_letter_alphabet(dfa, symbol);
 }
 
-void add_letter_alphabet(DFA *dfa, char letter){
-  int cond  = 1;
+void add_letter_alphabet(DFA *dfa, char letter)
+{
+  int cond = 1;
   int i = 0;
-  while(i < DET_MAX_SYMBOLS && dfa->alphabet[i] != -1)
+  while (i < DET_MAX_SYMBOLS && dfa->alphabet[i] != -1)
   {
     if (letter == dfa->alphabet[i])
     {
@@ -67,7 +68,6 @@ void add_letter_alphabet(DFA *dfa, char letter){
   {
     dfa->alphabet[i] = letter;
   }
-  
 }
 
 void det_set_accepting(DFA *dfa, int index)
@@ -181,15 +181,15 @@ void dfa_to_dot(DFA *dfa, const char *filename)
   fclose(file);
 }
 
-void dfa_print_alphabet(DFA *dfa){
+void dfa_print_alphabet(DFA *dfa)
+{
   printf("Alphabet: ");
-  for (int i = 0; dfa->alphabet[i] != -1 ; i++)
+  for (int i = 0; dfa->alphabet[i] != -1; i++)
   {
     printf("%c ", dfa->alphabet[i]);
   }
   printf("\n");
 }
-
 
 DFA *minimization(DFA *dfa)
 {

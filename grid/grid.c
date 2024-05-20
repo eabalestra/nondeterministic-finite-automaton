@@ -32,7 +32,7 @@ void print_grid(Grid *grid, char alphabet[])
     return;
   }
   printf("     ");
-    for (int i = 0; alphabet[i] != -1 ; i++)
+  for (int i = 0; alphabet[i] != -1; i++)
   {
     printf("%c   ", alphabet[i]);
   }
@@ -201,7 +201,7 @@ void grid_clean(Grid *grid, Set *no_end_states[], Set *end_states[])
 void init_parts(DFA *dfa, Set *no_end_states[], Set *end_states[])
 {
   // Inicializa cada elemento del arreglo
-  for (int i = 0; i < dfa->states_cant -1; i++)
+  for (int i = 0; i < dfa->states_cant - 1; i++)
   {
     no_end_states[i] = create_set();
     end_states[i] = create_set();
@@ -228,10 +228,10 @@ void calculate_parts(DFA *dfa, Set *no_end_states[], Set *end_states[], Grid *gr
   int elim_no_end[dfa->states_cant];
   while (part < grid->no_end_cant_states)
   {
-      for (int i = 0; i < dfa->states_cant; i++)
-      {
-        elim_no_end[i] = -1;
-      }
+    for (int i = 0; i < dfa->states_cant; i++)
+    {
+      elim_no_end[i] = -1;
+    }
     // fijo el primero y comparo sus fila contra todos los de la misma particion
     int primer = no_end_states[part]->elements[0];
     for (int i = 1; i < no_end_states[part]->size; i++)
@@ -253,14 +253,14 @@ void calculate_parts(DFA *dfa, Set *no_end_states[], Set *end_states[], Grid *gr
         if (elem1 != elem2)
         {
           elim_no_end[index] = segundo;
-          index ++;
+          index++;
           insert_set(no_end_states[part + 1], segundo);
         }
       }
     }
     for (int i = 0; elim_no_end[i] != -1; i++)
     {
-      remove_set(no_end_states[part], elim_no_end[i]);    
+      remove_set(no_end_states[part], elim_no_end[i]);
     }
     part++;
   }
@@ -290,19 +290,19 @@ void calculate_parts(DFA *dfa, Set *no_end_states[], Set *end_states[], Grid *gr
         if (elem1 != elem2)
         {
           elim_end[index] = segundo;
-          index ++;
+          index++;
           insert_set(end_states[part + 1], segundo);
         }
       }
     }
     for (int i = 0; elim_end[i] != -1; i++)
     {
-      remove_set(end_states[part], elim_end[i]);    
+      remove_set(end_states[part], elim_end[i]);
     }
     part++;
   }
   // calculo la grid con la nueva particiones que se formaron
-  //print_parts(no_end_states, end_states);
+  // print_parts(no_end_states, end_states);
 
   calculate_grid(dfa, grid, no_end_states, end_states);
   print_grid(grid, dfa->alphabet);

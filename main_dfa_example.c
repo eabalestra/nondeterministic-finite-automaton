@@ -10,7 +10,7 @@ int main()
   add_to_state(s0, 0);
   State *s1 = create_state();
   add_to_state(s1, 1);
-  
+
   det_add_state(dfa, s0);
   det_add_state(dfa, s1);
   det_set_accepting(dfa, 1);
