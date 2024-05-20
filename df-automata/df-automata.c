@@ -16,6 +16,7 @@ DFA *create_dfa()
     for (int symbol = 0; symbol < DET_MAX_SYMBOLS; symbol++)
     {
       dfa->transitions[from][symbol] = -1;
+      dfa->alphabet[symbol] = -1;
     }
   }
   dfa->initial_state = 0;
@@ -48,6 +49,25 @@ int det_add_state(DFA *dfa, State *state)
 void det_add_transition(DFA *dfa, int from, int to, char symbol)
 {
   dfa->transitions[from][symbol - 'a'] = to;
+  add_letter_alphabet(dfa, symbol);
+}
+
+void add_letter_alphabet(DFA *dfa, char letter){
+  int cond  = 1;
+  int i = 0;
+  while(i < DET_MAX_SYMBOLS && dfa->alphabet[i] != -1)
+  {
+    if (letter == dfa->alphabet[i])
+    {
+      cond = 0;
+    }
+    i++;
+  }
+  if (cond == 1)
+  {
+    dfa->alphabet[i] = letter;
+  }
+  
 }
 
 void det_set_accepting(DFA *dfa, int index)
@@ -161,10 +181,20 @@ void dfa_to_dot(DFA *dfa, const char *filename)
   fclose(file);
 }
 
+void dfa_print_alphabet(DFA *dfa){
+  printf("Alphabet: ");
+  for (int i = 0; dfa->alphabet[i] != -1 ; i++)
+  {
+    printf("%c ", dfa->alphabet[i]);
+  }
+  printf("\n");
+}
+
+
 DFA *minimization(DFA *dfa)
 {
-  Set *no_end_states[NUM_SETS];
-  Set *end_states[NUM_SETS];
+  Set *no_end_states[dfa->states_cant - 1];
+  Set *end_states[dfa->states_cant - 1];
 
   // Inicializa las particiones de estados finales y no finales
   init_parts(dfa, no_end_states, end_states);
@@ -174,7 +204,7 @@ DFA *minimization(DFA *dfa)
   grid->end_cant_states = end_states[0]->size;
 
   calculate_grid(dfa, grid, no_end_states, end_states); // Calcula a que clase de equivalencia va cada estado por cada letra
-
+  print_grid(grid, dfa->alphabet);
   Grid *copy = create_grid();
   while (grid_equals(copy, grid) != 1)
   {
@@ -187,7 +217,7 @@ DFA *minimization(DFA *dfa)
   grid_clean(grid, no_end_states, end_states);
   int cant_parts = sum_cant_parts(grid, no_end_states, end_states);
   DFA *min_dfa = create_dfa();
-  print_grid(grid);
+  print_grid(grid, dfa->alphabet);
 
   for (int i = 0; i < cant_parts; i++)
   {
@@ -204,7 +234,7 @@ DFA *minimization(DFA *dfa)
 
       for (int j = 0; j < DET_MAX_SYMBOLS; j++)
       {
-        if (grid->number[i][j] != 0) // Crea las tansiciones validas
+        if (grid->number[i][j] != -1) // Crea las tansiciones validas
         {
           char symbol = 'a' + j;
           int to_state = grid->number[i][j];
