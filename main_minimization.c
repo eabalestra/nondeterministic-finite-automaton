@@ -17,7 +17,7 @@ int main()
   system("xdot example-automatons/automata_dfa.dot");
   */
   NFA *nfa = create_nfa();
-  read_from_file(nfa, "example-automatons/automata_18.dot");
+  read_from_file(nfa, "example-automatons/automata_17.dot");
   //system("xdot example-automatons/automata_18.dot");
 
   DFA *dfa = nfa_to_dfa(nfa);

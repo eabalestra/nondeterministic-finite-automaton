@@ -160,7 +160,7 @@ void grid_clean(Grid *grid, Set *no_end_states[], Set *end_states[])
           // Copiar la fila más pequeña a la fila actual
           for (int k = 0; k < DET_MAX_SYMBOLS; k++)
           {
-            grid->number[current_state][k] = -1;
+            grid->number[current_state][k] = -2;
           }
         }
       }
@@ -190,7 +190,7 @@ void grid_clean(Grid *grid, Set *no_end_states[], Set *end_states[])
           // Copiar la fila más pequeña a la fila actual
           for (int k = 0; k < DET_MAX_SYMBOLS; k++)
           {
-            grid->number[current_state][k] = -1;
+            grid->number[current_state][k] = -2;
           }
         }
       }

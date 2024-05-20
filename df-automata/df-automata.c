@@ -221,7 +221,7 @@ DFA *minimization(DFA *dfa)
 
   for (int i = 0; i < cant_parts; i++)
   {
-    if (grid->number[i][0] != -1) // Crea los estados validos
+    if (grid->number[i][0] != -2) // Crea los estados validos
     {
       State *s = create_state();
       add_to_state(s, i);
@@ -243,6 +243,6 @@ DFA *minimization(DFA *dfa)
       }
     }
   }
-
+  print_parts(no_end_states, end_states);
   return min_dfa;
 }
