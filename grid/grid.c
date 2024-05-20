@@ -11,12 +11,12 @@ Grid *create_grid()
     exit(EXIT_FAILURE);
   }
 
-  // Inicializar todos los elementos a un valor por defecto (por ejemplo, 0)
+  // Inicializar todos los elementos a un valor por defecto (por ejemplo, -1)
   for (int i = 0; i < DET_MAX_STATES; ++i)
   {
     for (int j = 0; j < DET_MAX_SYMBOLS; ++j)
     {
-      new_grid->number[i][j] = 0;
+      new_grid->number[i][j] = -1;
     }
   }
   new_grid->no_end_cant_states = 0;
@@ -24,7 +24,7 @@ Grid *create_grid()
   return new_grid;
 }
 
-void print_grid(Grid *grid)
+void print_grid(Grid *grid, char alphabet[])
 {
   if (grid == NULL)
   {
@@ -32,17 +32,18 @@ void print_grid(Grid *grid)
     return;
   }
   printf("     ");
-  for (int j = 'a'; j <= 'e'; ++j)
+    for (int i = 0; alphabet[i] != -1 ; i++)
   {
-    printf("%c  ", j);
+    printf("%c   ", alphabet[i]);
   }
   printf("\n");
 
+  int cant_states = grid->end_cant_states + grid->no_end_cant_states;
   // Imprimir la matriz principal
-  for (int i = 0; i < 5; ++i)
+  for (int i = 0; i < cant_states; ++i)
   {
     printf("%3d", i); // Imprimir el número de la fila
-    for (int j = 0; j < 5; ++j)
+    for (int j = 0; alphabet[j] != -1; ++j)
     {
       printf("%3d", grid->number[i][j]);
     }
@@ -105,9 +106,9 @@ int grid_equals(Grid *grid1, Grid *grid2)
 
 void calculate_grid(DFA *dfa, Grid *grid, Set *no_end_states[], Set *end_states[])
 {
-  for (int i = 0; i < DET_MAX_STATES; i++)
+  for (int i = 0; i < dfa->states_cant; i++)
   {
-    for (int j = 0; j < DET_MAX_SYMBOLS; j++)
+    for (int j = 0; dfa->alphabet[j] != -1; j++)
     {
       // existe una transicion por i con el simbolo j?
       int elem = dfa->transitions[i][j];
@@ -200,7 +201,7 @@ void grid_clean(Grid *grid, Set *no_end_states[], Set *end_states[])
 void init_parts(DFA *dfa, Set *no_end_states[], Set *end_states[])
 {
   // Inicializa cada elemento del arreglo
-  for (int i = 0; i < NUM_SETS; i++)
+  for (int i = 0; i < dfa->states_cant -1; i++)
   {
     no_end_states[i] = create_set();
     end_states[i] = create_set();
@@ -223,11 +224,17 @@ void calculate_parts(DFA *dfa, Set *no_end_states[], Set *end_states[], Grid *gr
 {
   // calculo de la parte no final
   int part = 0;
-  while (part <= grid->no_end_cant_states)
+  int index = 0;
+  int elim_no_end[dfa->states_cant];
+  while (part < grid->no_end_cant_states)
   {
+      for (int i = 0; i < dfa->states_cant; i++)
+      {
+        elim_no_end[i] = -1;
+      }
     // fijo el primero y comparo sus fila contra todos los de la misma particion
     int primer = no_end_states[part]->elements[0];
-    for (size_t i = 1; i < no_end_states[part]->size; i++)
+    for (int i = 1; i < no_end_states[part]->size; i++)
     {
       // caso en que la particion tiene 1 elemento o cero, por lo que no la puedo dividir mas
       if (no_end_states[part]->size == 1 || no_end_states[part]->size == 0)
@@ -236,54 +243,71 @@ void calculate_parts(DFA *dfa, Set *no_end_states[], Set *end_states[], Grid *gr
       }
       int segundo = no_end_states[part]->elements[i];
       // letras o alfabeto
-      for (size_t j = 1; j <= 4; j++)
+      for (int j = 0; dfa->alphabet[j] != -1; j++)
       {
         // elem1 devuelve transicionar desde numero "primer" por letra "j" y lo comparo contra lo mismo pero del segundo
-        int elem1 = grid->number[primer][j - 1];
-        int elem2 = grid->number[segundo][j - 1];
+        int elem1 = grid->number[primer][j];
+        int elem2 = grid->number[segundo][j];
         // si son diferentes, entonces pertenecen a distintas particiones, por lo que saco el segundo
         // y lo pongo en siguiente particion
         if (elem1 != elem2)
         {
-          remove_set(no_end_states[part], segundo);
+          elim_no_end[index] = segundo;
+          index ++;
           insert_set(no_end_states[part + 1], segundo);
         }
       }
     }
+    for (int i = 0; elim_no_end[i] != -1; i++)
+    {
+      remove_set(no_end_states[part], elim_no_end[i]);    
+    }
     part++;
   }
   // calculo de la parte final
+  int elim_end[dfa->states_cant];
   part = 0;
+  index = 0;
   // esta parte es analoga pero con la otra parte, los estados finales
-  while (part <= grid->end_cant_states)
+  while (part < grid->end_cant_states)
   {
+    for (int i = 0; i < dfa->states_cant; i++)
+    {
+      elim_end[i] = -1;
+    }
     int primer = end_states[part]->elements[0];
-    for (size_t i = 1; i < end_states[part]->size; i++)
+    for (int i = 1; i < end_states[part]->size; i++)
     {
       if (end_states[part]->size == 1 || end_states[part]->size == 0)
       {
         break;
       }
       int segundo = end_states[part]->elements[i];
-      for (size_t j = 1; j <= 4; j++)
+      for (int j = 0; dfa->alphabet[j] != -1; j++)
       {
-        int elem1 = grid->number[primer][j - 1];
-        int elem2 = grid->number[segundo][j - 1];
+        int elem1 = grid->number[primer][j];
+        int elem2 = grid->number[segundo][j];
         if (elem1 != elem2)
         {
-          printf("%d", elem2);
-          remove_set(end_states[part], segundo);
+          elim_end[index] = segundo;
+          index ++;
           insert_set(end_states[part + 1], segundo);
         }
       }
     }
+    for (int i = 0; elim_end[i] != -1; i++)
+    {
+      remove_set(end_states[part], elim_end[i]);    
+    }
     part++;
   }
   // calculo la grid con la nueva particiones que se formaron
+  //print_parts(no_end_states, end_states);
+
   calculate_grid(dfa, grid, no_end_states, end_states);
+  print_grid(grid, dfa->alphabet);
 }
 
-// Printea las particiones
 void print_parts(Set *no_end_states[], Set *end_states[])
 {
   printf("No End States:\n");

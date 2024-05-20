@@ -32,6 +32,7 @@ void remove_set(Set *set, int element)
             {
                 set->elements[j] = set->elements[j + 1];
             }
+            set->elements[set->size -1] = -1;
             // Reducir el tamaño del conjunto
             set->size--;
             break;

@@ -17,15 +17,18 @@ typedef struct
   int transitions[DET_MAX_STATES][DET_MAX_SYMBOLS];
   int initial_state;
   int states_cant;
+  char alphabet[DET_MAX_SYMBOLS];
 } DFA;
 
 DFA *create_dfa();
 int det_add_state(DFA *dfa, State *state);
 void det_add_transition(DFA *dfa, int from, int to, char symbol);
+void add_letter_alphabet(DFA *dfa, char letter);
 void det_set_accepting(DFA *dfa, int index);
 State *det_transition(DFA *dfa, int current_state, char symbol);
 void print_dfa(DFA *dfa);
 void dfa_to_dot(DFA *dfa, const char *filename);
+void dfa_print_alphabet(DFA *dfa);
 
 /* TP 2 */
 DFA *minimization(DFA *dfa);
