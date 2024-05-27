@@ -30,7 +30,7 @@ The code is divided into several files:
 To build the project, use the following command:
 
 ```bash
-gcc -o main main.c nf-automata/nf-automata.c df-automata/df-automata.c sets/set.c linked-lists/linked_list.c state/state.c
+gcc -o main main_'option'.c nf-automata/nf-automata.c linked-lists/linked_list.c sets/set.c df-automata/df-automata.c state/state.c grid/grid.c
 ```
 
 To run the project, use the following command:
